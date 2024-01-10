@@ -1,3 +1,0 @@
-# Fixie Voice Demo app
-
-
