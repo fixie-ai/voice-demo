@@ -409,7 +409,7 @@ const AgentPageComponent: React.FC = () => {
   // Spacebar starts or interrupts. Esc quits.
   // C toggles the chooser. S toggles the stats.
   const onKeyDown = useCallback((event: KeyboardEvent) => {
-  // Either interrupt the vcoice session, or start it.
+  // Either interrupt the voice session, or start it.
   const speak = () => (active() ? voiceSession!.interrupt() : handleStart());
     if (event.keyCode == 32) {
       speak();
