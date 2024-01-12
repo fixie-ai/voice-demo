@@ -416,6 +416,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fixieai/fixie-common@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "@fixieai/fixie-common@npm:1.0.6"
+  dependencies:
+    base64-arraybuffer: "npm:^1.0.2"
+    type-fest: "npm:^4.3.1"
+  checksum: e1ceeed3c249007908fce6f5fe0f6cfad62f11fa9f2c6788fa45cbc9301ba802940869c2095b89c7c486a2ec0ae362bdb7561d21ccb73c00ac16cbad0691589e
+  languageName: node
+  linkType: hard
+
 "@graphql-typed-document-node/core@npm:^3.1.1":
   version: 3.2.0
   resolution: "@graphql-typed-document-node/core@npm:3.2.0"
@@ -1106,11 +1116,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.11.18":
-  version: 18.19.4
-  resolution: "@types/node@npm:18.19.4"
+  version: 18.19.6
+  resolution: "@types/node@npm:18.19.6"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 4eaf6e1bb588da960c7e5974e8a0112633138b5468f0e48fc959d5585863baca549bc8c5f5f7b751c61dd282b8c2879842220f6eeed33aa54c255e876ec16536
+  checksum: 6168abff930fe7666b81a130032b459b72d5de9d254e2b211027d18d9eab80f653f43b7a8f083429a43e0527174ec70bbcd0010abb935d91f2d518b7554b7cab
   languageName: node
   linkType: hard
 
@@ -1932,6 +1942,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"base64-arraybuffer@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "base64-arraybuffer@npm:1.0.2"
+  checksum: 15e6400d2d028bf18be4ed97702b11418f8f8779fb8c743251c863b726638d52f69571d4cc1843224da7838abef0949c670bde46936663c45ad078e89fee5c62
+  languageName: node
+  linkType: hard
+
 "base64-js@npm:^1.3.1, base64-js@npm:^1.5.1":
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
@@ -2690,9 +2707,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.601":
-  version: 1.4.627
-  resolution: "electron-to-chromium@npm:1.4.627"
-  checksum: 6f3ad8705a8004cb208830ffe36dfdb04cc8c431eaaa5a7d25afdd3b8e215c5f9785df5593ff634cb226edb4f4a23a78bb7a567910774dd2c7f8da79403a2edb
+  version: 1.4.628
+  resolution: "electron-to-chromium@npm:1.4.628"
+  checksum: 724865c625f4caca40c3069fe95a32ae49a8e18f5949544ab107ec4533ecc8d3ba2552fbb6418197d7b4c1a50bca7cd1aa637695829f31029a213594d4b7828f
   languageName: node
   linkType: hard
 
@@ -3462,6 +3479,7 @@ __metadata:
     eslint: "npm:8.42.0"
     eslint-config-next: "npm:^14.0.1"
     eslint-config-nth: "npm:^2.0.1"
+    fixie-web: "npm:^1.0.8"
     livekit-client: "npm:^1.14.4"
     lodash: "npm:^4.17.21"
     next: "npm:^14.0.1"
@@ -3478,6 +3496,28 @@ __metadata:
     word-error-rate: "npm:^0.0.7"
   languageName: unknown
   linkType: soft
+
+"fixie-web@npm:^1.0.8":
+  version: 1.0.8
+  resolution: "fixie-web@npm:1.0.8"
+  dependencies:
+    "@fixieai/fixie-common": "npm:^1.0.6"
+    base64-arraybuffer: "npm:^1.0.2"
+    livekit-client: "npm:^1.15.2"
+    type-fest: "npm:^4.3.1"
+  peerDependencies:
+    react: ^16.8.0  || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0  || ^17.0.0 || ^18.0.0
+  peerDependenciesMeta:
+    "@types/react-dom":
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 1b1f7ca0d51c37ef3a4cc677a303a519a64954631f4c82b8d843f88684004822bf263677ca32f804cd2048569fa5c89971aa5c936d122b319835c55569562693
+  languageName: node
+  linkType: hard
 
 "flat-cache@npm:^3.0.4":
   version: 3.2.0
@@ -5164,7 +5204,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"livekit-client@npm:^1.14.4":
+"livekit-client@npm:^1.14.4, livekit-client@npm:^1.15.2":
   version: 1.15.8
   resolution: "livekit-client@npm:1.15.8"
   dependencies:
@@ -7511,13 +7551,13 @@ __metadata:
   linkType: hard
 
 "safe-regex-test@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "safe-regex-test@npm:1.0.1"
+  version: 1.0.2
+  resolution: "safe-regex-test@npm:1.0.2"
   dependencies:
     call-bind: "npm:^1.0.5"
     get-intrinsic: "npm:^1.2.2"
     is-regex: "npm:^1.1.4"
-  checksum: f9e2af64e4a8385c00239797513103bc8b3ade4b0bb71f4c6ecd8de2d92d31c891ec6fd0e6e6d1f1c597d606f5e200acf615d6c9b6baa5e422ed9fe17ddacc35
+  checksum: 0e6a472caa8f44a502c7842ea19749de42c2eb1b41cb00456061dc3746cf3468e907522f56e97a15f3b41d88f660bd3d4f9bdec064a39895f7babae0f7aafc6a
   languageName: node
   linkType: hard
 
@@ -8344,6 +8384,13 @@ __metadata:
   version: 3.13.1
   resolution: "type-fest@npm:3.13.1"
   checksum: 9a8a2359ada34c9b3affcaf3a8f73ee14c52779e89950db337ce66fb74c3399776c697c99f2532e9b16e10e61cfdba3b1c19daffb93b338b742f0acd0117ce12
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:^4.3.1":
+  version: 4.9.0
+  resolution: "type-fest@npm:4.9.0"
+  checksum: 49acfb67999566a24d5604435c8cff786dfc26ebea5a2a343e14d437d34f30a55248f8e597b8f64446c344bb68ce14af68899f562cf66ca66c1e1a856b393259
   languageName: node
   linkType: hard
 

@@ -1,8 +1,8 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { FixieClient, VoiceSession, VoiceSessionInit, VoiceSessionState } from "fixie-web";
 import { useSearchParams } from "next/navigation";
 import { useSwipeable } from "react-swipeable";
-import { ChatManager, ChatManagerState, createChatManager } from "./chat";
 import { getAgent, getAgentImageUrl } from "./agents";
 import Image from "next/image";
 import "../globals.css";
@@ -140,7 +140,7 @@ const Stat: React.FC<{ name: string; latency: number; showName?: boolean }> = ({
 const Visualizer: React.FC<{
   width?: number;
   height?: number;
-  state?: ChatManagerState;
+  state?: VoiceSessionState;
   inputAnalyzer?: AnalyserNode;
   outputAnalyzer?: AnalyserNode;
 }> = ({ width, height, state, inputAnalyzer, outputAnalyzer }) => {
@@ -164,8 +164,8 @@ const Visualizer: React.FC<{
   }
   const draw = (
     canvas: HTMLCanvasElement,
-    state: ChatManagerState,
-    freqData: Uint8Array,
+    state: VoiceSessionState,
+    freqData: Uint8Array
   ) => {
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     const marginWidth = 2;
@@ -177,31 +177,31 @@ const Visualizer: React.FC<{
       const x = barHeight + 25 * (i / freqData.length);
       const y = 250 * (i / freqData.length);
       const z = 50;
-      if (state == ChatManagerState.LISTENING) {
+      if (state == VoiceSessionState.LISTENING) {
         ctx.fillStyle = `rgb(${x},${y},${z})`;
-      } else if (state == ChatManagerState.THINKING) {
+      } else if (state == VoiceSessionState.THINKING) {
         ctx.fillStyle = `rgb(${z},${x},${y})`;
-      } else if (state == ChatManagerState.SPEAKING) {
+      } else if (state == VoiceSessionState.SPEAKING) {
         ctx.fillStyle = `rgb(${y},${z},${x})`;
       }
       ctx.fillRect(
         i * totalWidth + marginWidth,
         canvas.height - barHeight,
         barWidth,
-        barHeight,
+        barHeight
       );
     });
   };
   const render = useCallback(() => {
     let freqData: Uint8Array = new Uint8Array(0);
     switch (state) {
-      case ChatManagerState.LISTENING:
+      case VoiceSessionState.LISTENING:
         if (!inputAnalyzer) return;
         freqData = new Uint8Array(inputAnalyzer!.frequencyBinCount);
         inputAnalyzer!.getByteFrequencyData(freqData);
         freqData = freqData.slice(0, 16);
         break;
-      case ChatManagerState.THINKING:
+      case VoiceSessionState.THINKING:
         freqData = new Uint8Array(16);
         // make the data have random pulses based on performance.now, which decay over time
         const now = performance.now();
@@ -210,17 +210,17 @@ const Visualizer: React.FC<{
             Math.max(0, Math.sin((now - i * 100) / 100) * 128 + 128) / 2;
         }
         break;
-      case ChatManagerState.SPEAKING:
+      case VoiceSessionState.SPEAKING:
         if (!outputAnalyzer) return;
         freqData = new Uint8Array(outputAnalyzer!.frequencyBinCount);
         outputAnalyzer!.getByteFrequencyData(freqData);
         freqData = freqData.slice(0, 16);
         break;
     }
-    draw(canvasRef.current!, state ?? ChatManagerState.IDLE, freqData);
+    draw(canvasRef.current!, state ?? VoiceSessionState.IDLE, freqData);
     requestAnimationFrame(render);
   }, [state, inputAnalyzer, outputAnalyzer]);
-  useEffect(() => render(), [state]);
+  useEffect(() => render(), [state, render]);
   let className = "";
   if (!width) className += " w-full";
   if (!height) className += " h-full";
@@ -252,11 +252,24 @@ const Button: React.FC<{
 
 const AgentPageComponent: React.FC = () => {
   const searchParams = useSearchParams();
+  const [voiceSession, setVoiceSession] = useState<VoiceSession | null>(null);
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState("");
+  const [started, setStarted] = useState(false);
+
+  const [showStats, setShowStats] = useState(
+    searchParams.get("stats") !== null
+  );
+  const [state, setState] = useState<VoiceSessionState>(VoiceSessionState.DISCONNECTED);
+  const [asrLatency, setAsrLatency] = useState(0);
+  const [llmResponseLatency, setLlmResponseLatency] = useState(0);
+  const [llmTokenLatency, setLlmTokenLatency] = useState(0);
+  const [ttsLatency, setTtsLatency] = useState(0);
+
   const agentId = searchParams.get("agent") || "dr-donut";
   const agentVoice = getAgent(agentId)?.ttsVoice;
-  const tapOrClick =
-    typeof window != "undefined" && "ontouchstart" in window ? "Tap" : "Click";
-  const idleText = `${tapOrClick} anywhere to start!`;
+
+  // Pull all the parameters out of the search params.
   const asrProvider = searchParams.get("asr") || DEFAULT_ASR_PROVIDER;
   const asrModel = searchParams.get("asrModel") || undefined;
   const asrLanguage = searchParams.get("asrLanguage") || undefined;
@@ -270,133 +283,134 @@ const AgentPageComponent: React.FC = () => {
   const docs = searchParams.get("docs") !== null;
   const webrtcUrl = searchParams.get("webrtc") ?? undefined;
   const [showChooser, setShowChooser] = useState(
-    searchParams.get("chooser") !== null,
+    searchParams.get("chooser") !== null
   );
   const showInput = searchParams.get("input") !== null;
   const showOutput = searchParams.get("output") !== null;
-  const [showStats, setShowStats] = useState(
-    searchParams.get("stats") !== null,
-  );
-  const [chatManager, setChatManager] = useState<ChatManager | null>();
-  const [input, setInput] = useState("");
-  const [output, setOutput] = useState("");
-  const [helpText, setHelpText] = useState(idleText);
-  const [asrLatency, setAsrLatency] = useState(0);
-  const [llmResponseLatency, setLlmResponseLatency] = useState(0);
-  const [llmTokenLatency, setLlmTokenLatency] = useState(0);
-  const [ttsLatency, setTtsLatency] = useState(0);
-  const active = () =>
-    chatManager && chatManager!.state != ChatManagerState.IDLE;
-  useEffect(
-    () => init(),
-    [
-      asrProvider,
-      asrLanguage,
-      ttsProvider,
-      ttsModel,
-      ttsVoice,
-      model,
-      agentId,
-      docs,
-    ],
-  );
-  const init = () => {
-    console.log(
-      `[page] init asr=${asrProvider} tts=${ttsProvider} llm=${model} agent=${agentId} docs=${docs}`,
-    );
-    const manager = createChatManager({
-      asrProvider,
-      asrModel,
-      asrLanguage,
-      ttsProvider,
-      ttsModel,
-      ttsVoice,
-      model,
-      agentId,
-      docs,
-      webrtcUrl,
-    });
-    setChatManager(manager);
-    manager.onStateChange = (state) => {
-      switch (state) {
-        case ChatManagerState.LISTENING:
-          setHelpText("Listening...");
-          break;
-        case ChatManagerState.THINKING:
-          setHelpText(`Thinking... ${tapOrClick.toLowerCase()} to cancel`);
-          break;
-        case ChatManagerState.SPEAKING:
-          setHelpText(`Speaking... ${tapOrClick.toLowerCase()} to interrupt`);
-          break;
-        default:
-          setHelpText(idleText);
-      }
-    };
-    manager.onInputChange = (text, final) => {
-      setInput(text);
-    };
-    manager.onOutputChange = (text, final) => {
-      setOutput(text);
-      if (final) {
-        setInput("");
-      }
-    };
-    manager.onLatencyChange = (kind, latency) => {
-      switch (kind) {
-        case "asr":
-          setAsrLatency(latency);
-          setLlmResponseLatency(0);
-          setLlmTokenLatency(0);
-          setTtsLatency(0);
-          break;
-        case "llm":
-          setLlmResponseLatency(latency);
-          break;
-        case "llmt":
-          setLlmTokenLatency(latency);
-          break;
-        case "tts":
-          setTtsLatency(latency);
-          break;
-      }
-    };
-    manager.onError = () => {
-      manager.stop();
-    };
-    return () => manager.stop();
-  };
-  const changeAgent = (delta: number) => {
-    const index = AGENT_IDS.indexOf(agentId);
-    const newIndex = (index + delta + AGENT_IDS.length) % AGENT_IDS.length;
-    updateSearchParams("agent", AGENT_IDS[newIndex], true);
-  };
-  const handleStart = () => {
+
+  // Returns true if the voice session is active.
+  const active = useCallback(() => {
+    return (voiceSession && voiceSession!.state != VoiceSessionState.DISCONNECTED)
+  }, [voiceSession]);
+
+  // Stop the voice session.
+  const handleStop = useCallback(() => {
+    console.log(`handleStop - stopping voice session ${voiceSession}`);
+    voiceSession!.stop();
+  }, [voiceSession]);
+
+  // Start the voice session.
+  const handleStart = useCallback(() => {
     setInput("");
     setOutput("");
     setAsrLatency(0);
     setLlmResponseLatency(0);
     setLlmTokenLatency(0);
     setTtsLatency(0);
-    chatManager!.start("");
-  };
-  const handleStop = () => {
-    chatManager!.stop();
-  };
-  const speak = () => (active() ? chatManager!.interrupt() : handleStart());
-  // Click/tap starts or interrupts.
-  const onClick = (event: MouseEvent) => {
-    const target = event.target as HTMLElement;
-    if (
-      !target.matches("button") &&
-      !target.matches("select") &&
-      !target.matches("a")
-    ) {
-      speak();
+    if (voiceSession) {
+      console.log(`handleStart - starting voice session ${voiceSession}`);
+      voiceSession!.start();
     }
-  };
+  }, [voiceSession]);
+
+  // Create the voice session, configure it, and warm it up.
+  const createSession = useCallback(() => {
+    const fixieClient = new FixieClient({});
+    const voiceInit: VoiceSessionInit = {
+      webrtcUrl: webrtcUrl || "wss://wsapi.fixie.ai",
+      asrProvider: asrProvider,
+      ttsProvider: ttsProvider,
+      ttsVoice: ttsVoice,
+      model: model,
+    };
+    const session = fixieClient.createVoiceSession({
+      agentId,
+      init: voiceInit,
+    });
+
+    session.onStateChange = (state: VoiceSessionState) => {
+      setState(state);
+    };
+    session.onInputChange = (text: string, final: boolean) => {
+      setInput(text);
+    };
+    session.onOutputChange = (text: string, final: boolean) => {
+      setOutput(text);
+      if (final) {
+        setInput("");
+      }
+    };
+    session.onLatencyChange = (metric: string, value: number) => {
+      switch (metric) {
+        case "asr":
+          setAsrLatency(value);
+          setLlmResponseLatency(0);
+          setLlmTokenLatency(0);
+          setTtsLatency(0);
+          break;
+        case "llm":
+          setLlmResponseLatency(value);
+          break;
+        case "llmt":
+          setLlmTokenLatency(value);
+          break;
+        case "tts":
+          setTtsLatency(value);
+          break;
+      }
+    };
+    session.onError = () => {
+      session.stop();
+    };
+    console.log(`init - warming up voice session ${session}`);
+    session.warmup();
+    setVoiceSession(session);
+    return session;
+  }, [agentId, asrProvider, model, ttsProvider, ttsVoice, webrtcUrl]);
+
+  // Called when the main button is clicked.
+  const onButtonClick = useCallback(() => {
+    if (!started) {
+      const session = createSession();
+      handleStart();
+      session.start();
+      setStarted(true);
+    } else {
+      handleStop();
+      setStarted(false);
+    }
+  }, [createSession, handleStart, handleStop, started]);
+
+  // This effect is used to stop the voice session in the component destructor.
+  useEffect(() => {
+    console.log(
+      `[page] init asr=${asrProvider} tts=${ttsProvider} llm=${model} agent=${agentId} docs=${docs}`
+    );
+    return () => {
+      console.log(`destructor - stopping voice session ${voiceSession}`);
+      voiceSession?.stop();
+    };
+  }, [
+    agentId,
+    asrProvider,
+    docs,
+    model,
+    ttsProvider,
+    voiceSession,
+  ]);
+
+  const changeAgent = useCallback((delta: number) => {
+    const index = AGENT_IDS.indexOf(agentId);
+    const newIndex = (index + delta + AGENT_IDS.length) % AGENT_IDS.length;
+    updateSearchParams("agent", AGENT_IDS[newIndex], true);
+  }, [agentId]);
+
+
   // Spacebar starts or interrupts. Esc quits.
   // C toggles the chooser. S toggles the stats.
-  const onKeyDown = (event: KeyboardEvent) => {
+  const onKeyDown = useCallback((event: KeyboardEvent) => {
+  // Either interrupt the vcoice session, or start it.
+  const speak = () => (active() ? voiceSession!.interrupt() : handleStart());
     if (event.keyCode == 32) {
       speak();
       event.preventDefault();
@@ -422,14 +436,13 @@ const AgentPageComponent: React.FC = () => {
       changeAgent(1);
       event.preventDefault();
     }
-  };
+  }, [active, handleStart, voiceSession, changeAgent, handleStop, showChooser, showStats]);
+
   // Install our handlers, and clean them up on unmount.
   useEffect(() => {
-    document.addEventListener("click", onClick);
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      document.removeEventListener("click", onClick);
     };
   }, [onKeyDown]);
   const swipeHandlers = useSwipeable({
@@ -520,21 +533,19 @@ const AgentPageComponent: React.FC = () => {
             </div>
           )}
         </div>
-        <p className="py-4 text-xl">{helpText}</p>
+        <p className="py-4 text-lg font-mono">State: {state}</p>
         <div className="w-full max-w-sm p-4">
           <Visualizer
             height={64}
-            state={chatManager?.state}
-            inputAnalyzer={chatManager?.inputAnalyzer}
-            outputAnalyzer={chatManager?.outputAnalyzer}
+            state={voiceSession?.state}
+            inputAnalyzer={voiceSession?.inputAnalyzer}
+            outputAnalyzer={voiceSession?.outputAnalyzer}
           />
         </div>
         <div className="w-full flex justify-center mt-3">
-          {active() && (
-            <Button disabled={false} onClick={handleStop}>
-              End Chat
-            </Button>
-          )}
+          <Button disabled={false} onClick={onButtonClick}>
+            { started ? "Stop" : "Start" }
+          </Button>
         </div>
       </div>
     </>
