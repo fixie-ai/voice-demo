@@ -2,7 +2,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSwipeable } from "react-swipeable";
-import { FixieClient, VoiceSession, VoiceSessionInit, VoiceSessionState } from "fixie-web";
+import {
+  FixieClient,
+  VoiceSession,
+  VoiceSessionInit,
+  VoiceSessionState,
+} from "fixie-web";
 import { getAgent, getAgentImageUrl } from "./agents";
 import Image from "next/image";
 import "../globals.css";
@@ -287,7 +292,8 @@ const AgentPageComponent: React.FC = () => {
   const [ttsLatency, setTtsLatency] = useState(0);
   const active = () =>
     voiceSession && voiceSession!.state != VoiceSessionState.DISCONNECTED;
-  useEffect(() => init(),
+  useEffect(
+    () => init(),
     [
       asrProvider,
       asrLanguage,
@@ -311,7 +317,7 @@ const AgentPageComponent: React.FC = () => {
       ttsProvider,
       ttsModel,
       ttsVoice,
-      model
+      model,
     };
     const session = fixieClient.createVoiceSession({
       agentId,
