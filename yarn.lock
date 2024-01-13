@@ -416,6 +416,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fixieai/fixie-common@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "@fixieai/fixie-common@npm:1.0.6"
+  dependencies:
+    base64-arraybuffer: "npm:^1.0.2"
+    type-fest: "npm:^4.3.1"
+  checksum: e1ceeed3c249007908fce6f5fe0f6cfad62f11fa9f2c6788fa45cbc9301ba802940869c2095b89c7c486a2ec0ae362bdb7561d21ccb73c00ac16cbad0691589e
+  languageName: node
+  linkType: hard
+
 "@graphql-typed-document-node/core@npm:^3.1.1":
   version: 3.2.0
   resolution: "@graphql-typed-document-node/core@npm:3.2.0"
@@ -1929,6 +1939,13 @@ __metadata:
   version: 0.1.0
   resolution: "base-64@npm:0.1.0"
   checksum: 5a42938f82372ab5392cbacc85a5a78115cbbd9dbef9f7540fa47d78763a3a8bd7d598475f0d92341f66285afd377509851a9bb5c67bbecb89686e9255d5b3eb
+  languageName: node
+  linkType: hard
+
+"base64-arraybuffer@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "base64-arraybuffer@npm:1.0.2"
+  checksum: 15e6400d2d028bf18be4ed97702b11418f8f8779fb8c743251c863b726638d52f69571d4cc1843224da7838abef0949c670bde46936663c45ad078e89fee5c62
   languageName: node
   linkType: hard
 
@@ -3462,6 +3479,7 @@ __metadata:
     eslint: "npm:8.42.0"
     eslint-config-next: "npm:^14.0.1"
     eslint-config-nth: "npm:^2.0.1"
+    fixie-web: "npm:1.0.7"
     livekit-client: "npm:^1.14.4"
     lodash: "npm:^4.17.21"
     next: "npm:^14.0.1"
@@ -3478,6 +3496,28 @@ __metadata:
     word-error-rate: "npm:^0.0.7"
   languageName: unknown
   linkType: soft
+
+"fixie-web@npm:1.0.7":
+  version: 1.0.7
+  resolution: "fixie-web@npm:1.0.7"
+  dependencies:
+    "@fixieai/fixie-common": "npm:^1.0.6"
+    base64-arraybuffer: "npm:^1.0.2"
+    livekit-client: "npm:^1.15.2"
+    type-fest: "npm:^4.3.1"
+  peerDependencies:
+    react: ^16.8.0  || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0  || ^17.0.0 || ^18.0.0
+  peerDependenciesMeta:
+    "@types/react-dom":
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 8eca64681af049857f02e4447ae89eb559187bc1177981fa9495ae4fc5f571c14bd62925db5eb2c7a6d33889bae5a23ea14d140c0cddf0721d934c635c1cd79b
+  languageName: node
+  linkType: hard
 
 "flat-cache@npm:^3.0.4":
   version: 3.2.0
@@ -5164,7 +5204,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"livekit-client@npm:^1.14.4":
+"livekit-client@npm:^1.14.4, livekit-client@npm:^1.15.2":
   version: 1.15.8
   resolution: "livekit-client@npm:1.15.8"
   dependencies:
@@ -8344,6 +8384,13 @@ __metadata:
   version: 3.13.1
   resolution: "type-fest@npm:3.13.1"
   checksum: 9a8a2359ada34c9b3affcaf3a8f73ee14c52779e89950db337ce66fb74c3399776c697c99f2532e9b16e10e61cfdba3b1c19daffb93b338b742f0acd0117ce12
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:^4.3.1":
+  version: 4.9.0
+  resolution: "type-fest@npm:4.9.0"
+  checksum: 49acfb67999566a24d5604435c8cff786dfc26ebea5a2a343e14d437d34f30a55248f8e597b8f64446c344bb68ce14af68899f562cf66ca66c1e1a856b393259
   languageName: node
   linkType: hard
 

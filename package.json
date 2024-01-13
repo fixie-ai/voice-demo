@@ -29,6 +29,7 @@
     "classnames": "^2.3.2",
     "eslint": "8.42.0",
     "eslint-config-next": "^14.0.1",
+    "fixie-web": "1.0.7",
     "livekit-client": "^1.14.4",
     "lodash": "^4.17.21",
     "next": "^14.0.1",
