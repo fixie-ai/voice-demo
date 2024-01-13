@@ -405,12 +405,12 @@ const AgentPageComponent: React.FC = () => {
     updateSearchParams("agent", AGENT_IDS[newIndex], true);
   }, [agentId]);
 
-
   // Spacebar starts or interrupts. Esc quits.
   // C toggles the chooser. S toggles the stats.
   const onKeyDown = useCallback((event: KeyboardEvent) => {
-  // Either interrupt the voice session, or start it.
-  const speak = () => (active() ? voiceSession!.interrupt() : handleStart());
+    // Either interrupt the voice session, or start it.
+    const speak = () => (active() ? voiceSession!.interrupt() : handleStart());
+
     if (event.keyCode == 32) {
       speak();
       event.preventDefault();
@@ -445,10 +445,12 @@ const AgentPageComponent: React.FC = () => {
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [onKeyDown]);
+
   const swipeHandlers = useSwipeable({
     onSwipedLeft: (eventData) => changeAgent(-1),
     onSwipedRight: (eventData) => changeAgent(1),
   });
+
   return (
     <>
       {showChooser && (
