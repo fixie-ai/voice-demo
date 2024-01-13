@@ -3479,7 +3479,7 @@ __metadata:
     eslint: "npm:8.42.0"
     eslint-config-next: "npm:^14.0.1"
     eslint-config-nth: "npm:^2.0.1"
-    fixie-web: "npm:1.0.7"
+    fixie-web: "npm:1.0.8"
     livekit-client: "npm:^1.14.4"
     lodash: "npm:^4.17.21"
     next: "npm:^14.0.1"
@@ -3497,9 +3497,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"fixie-web@npm:1.0.7":
-  version: 1.0.7
-  resolution: "fixie-web@npm:1.0.7"
+"fixie-web@npm:1.0.8":
+  version: 1.0.8
+  resolution: "fixie-web@npm:1.0.8"
   dependencies:
     "@fixieai/fixie-common": "npm:^1.0.6"
     base64-arraybuffer: "npm:^1.0.2"
@@ -3515,7 +3515,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 8eca64681af049857f02e4447ae89eb559187bc1177981fa9495ae4fc5f571c14bd62925db5eb2c7a6d33889bae5a23ea14d140c0cddf0721d934c635c1cd79b
+  checksum: 1b1f7ca0d51c37ef3a4cc677a303a519a64954631f4c82b8d843f88684004822bf263677ca32f804cd2048569fa5c89971aa5c936d122b319835c55569562693
   languageName: node
   linkType: hard
 

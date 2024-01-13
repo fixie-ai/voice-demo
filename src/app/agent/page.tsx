@@ -415,6 +415,7 @@ const AgentPageComponent: React.FC = () => {
     setLlmResponseLatency(0);
     setLlmTokenLatency(0);
     setTtsLatency(0);
+    voiceSession!.warmup();
     voiceSession!.start();
   };
   const handleStop = () => {
