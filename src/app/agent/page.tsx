@@ -286,7 +286,7 @@ const AgentPageComponent: React.FC = () => {
   const [llmTokenLatency, setLlmTokenLatency] = useState(0);
   const [ttsLatency, setTtsLatency] = useState(0);
   const active = () =>
-    voiceSession && voiceSession!.state != VoiceSessionState.DISCONNECTED;
+    voiceSession && voiceSession!.state > VoiceSessionState.IDLE;
   useEffect(
     () => init(),
     [
