@@ -250,46 +250,6 @@ const Button: React.FC<{
   </button>
 );
 
-/** Create a VoiceSession with the given parameters. */
-function makeVoiceSession({
-  agentId,
-  asrProvider,
-  asrLanguage,
-  ttsProvider,
-  ttsModel,
-  ttsVoice,
-  model,
-  webrtcUrl,
-}: {
-  agentId: string;
-  asrProvider?: string;
-  asrLanguage?: string;
-  ttsProvider?: string;
-  ttsModel?: string;
-  ttsVoice?: string;
-  model?: string;
-  webrtcUrl?: string;
-}): VoiceSession {
-  console.log(`[makeVoiceSession] creating voice session with LLM ${model}`);
-  const fixieClient = new FixieClient({});
-  const voiceInit: VoiceSessionInit = {
-    webrtcUrl: webrtcUrl || 'wss://wsapi.fixie.ai',
-    asrProvider: asrProvider || DEFAULT_ASR_PROVIDER,
-    asrLanguage: asrLanguage || 'en-US',
-    ttsProvider: ttsProvider || DEFAULT_TTS_PROVIDER,
-    ttsModel: ttsModel || '',
-    ttsVoice: ttsVoice || '',
-    model: model || DEFAULT_LLM,
-  };
-  const session = fixieClient.createVoiceSession({
-    agentId,
-    init: voiceInit,
-  });
-  console.log(`[makeVoiceSession] created voice session`);
-  return session;
-}
-
-
 const AgentPageComponent: React.FC = () => {
   const searchParams = useSearchParams();
   const agentId = searchParams.get("agent") || "dr-donut";
@@ -344,15 +304,19 @@ const AgentPageComponent: React.FC = () => {
     console.log(
       `[page] init asr=${asrProvider} tts=${ttsProvider} llm=${model} agent=${agentId} docs=${docs}`,
     );
-    const session = makeVoiceSession({
+    const fixieClient = new FixieClient({});
+    const voiceInit: VoiceSessionInit = {
+      webrtcUrl: webrtcUrl || "wss://wsapi.fixie.ai",
       asrProvider,
       asrLanguage,
       ttsProvider,
       ttsModel,
       ttsVoice,
-      model,
+      model
+    };
+    const session = fixieClient.createVoiceSession({
       agentId,
-      webrtcUrl,
+      init: voiceInit,
     });
     setVoiceSession(session);
     session.onStateChange = (state: VoiceSessionState) => {
@@ -401,6 +365,7 @@ const AgentPageComponent: React.FC = () => {
     session.onError = () => {
       session.stop();
     };
+    session.warmup();
     return () => session.stop();
   };
   const changeAgent = (delta: number) => {
@@ -415,7 +380,6 @@ const AgentPageComponent: React.FC = () => {
     setLlmResponseLatency(0);
     setLlmTokenLatency(0);
     setTtsLatency(0);
-    voiceSession!.warmup();
     voiceSession!.start();
   };
   const handleStop = () => {
