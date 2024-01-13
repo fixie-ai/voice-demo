@@ -1,6 +1,11 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { FixieClient, VoiceSession, VoiceSessionInit, VoiceSessionState } from "fixie-web";
+import {
+  FixieClient,
+  VoiceSession,
+  VoiceSessionInit,
+  VoiceSessionState,
+} from "fixie-web";
 import { useSearchParams } from "next/navigation";
 import { useSwipeable } from "react-swipeable";
 import { getAgent, getAgentImageUrl } from "./agents";
@@ -165,7 +170,7 @@ const Visualizer: React.FC<{
   const draw = (
     canvas: HTMLCanvasElement,
     state: VoiceSessionState,
-    freqData: Uint8Array
+    freqData: Uint8Array,
   ) => {
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     const marginWidth = 2;
@@ -188,7 +193,7 @@ const Visualizer: React.FC<{
         i * totalWidth + marginWidth,
         canvas.height - barHeight,
         barWidth,
-        barHeight
+        barHeight,
       );
     });
   };
@@ -258,9 +263,11 @@ const AgentPageComponent: React.FC = () => {
   const [started, setStarted] = useState(false);
 
   const [showStats, setShowStats] = useState(
-    searchParams.get("stats") !== null
+    searchParams.get("stats") !== null,
   );
-  const [state, setState] = useState<VoiceSessionState>(VoiceSessionState.DISCONNECTED);
+  const [state, setState] = useState<VoiceSessionState>(
+    VoiceSessionState.DISCONNECTED,
+  );
   const [asrLatency, setAsrLatency] = useState(0);
   const [llmResponseLatency, setLlmResponseLatency] = useState(0);
   const [llmTokenLatency, setLlmTokenLatency] = useState(0);
@@ -283,14 +290,16 @@ const AgentPageComponent: React.FC = () => {
   const docs = searchParams.get("docs") !== null;
   const webrtcUrl = searchParams.get("webrtc") ?? undefined;
   const [showChooser, setShowChooser] = useState(
-    searchParams.get("chooser") !== null
+    searchParams.get("chooser") !== null,
   );
   const showInput = searchParams.get("input") !== null;
   const showOutput = searchParams.get("output") !== null;
 
   // Returns true if the voice session is active.
   const active = useCallback(() => {
-    return (voiceSession && voiceSession!.state != VoiceSessionState.DISCONNECTED)
+    return (
+      voiceSession && voiceSession!.state != VoiceSessionState.DISCONNECTED
+    );
   }, [voiceSession]);
 
   // Stop the voice session.
@@ -384,59 +393,67 @@ const AgentPageComponent: React.FC = () => {
   // This effect is used to stop the voice session in the component destructor.
   useEffect(() => {
     console.log(
-      `[page] init asr=${asrProvider} tts=${ttsProvider} llm=${model} agent=${agentId} docs=${docs}`
+      `[page] init asr=${asrProvider} tts=${ttsProvider} llm=${model} agent=${agentId} docs=${docs}`,
     );
     return () => {
       console.log(`destructor - stopping voice session ${voiceSession}`);
       voiceSession?.stop();
     };
-  }, [
-    agentId,
-    asrProvider,
-    docs,
-    model,
-    ttsProvider,
-    voiceSession,
-  ]);
+  }, [agentId, asrProvider, docs, model, ttsProvider, voiceSession]);
 
-  const changeAgent = useCallback((delta: number) => {
-    const index = AGENT_IDS.indexOf(agentId);
-    const newIndex = (index + delta + AGENT_IDS.length) % AGENT_IDS.length;
-    updateSearchParams("agent", AGENT_IDS[newIndex], true);
-  }, [agentId]);
+  const changeAgent = useCallback(
+    (delta: number) => {
+      const index = AGENT_IDS.indexOf(agentId);
+      const newIndex = (index + delta + AGENT_IDS.length) % AGENT_IDS.length;
+      updateSearchParams("agent", AGENT_IDS[newIndex], true);
+    },
+    [agentId],
+  );
 
   // Spacebar starts or interrupts. Esc quits.
   // C toggles the chooser. S toggles the stats.
-  const onKeyDown = useCallback((event: KeyboardEvent) => {
-    // Either interrupt the voice session, or start it.
-    const speak = () => (active() ? voiceSession!.interrupt() : handleStart());
+  const onKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      // Either interrupt the voice session, or start it.
+      const speak = () =>
+        active() ? voiceSession!.interrupt() : handleStart();
 
-    if (event.keyCode == 32) {
-      speak();
-      event.preventDefault();
-    } else if (event.keyCode == 27) {
-      handleStop();
-      event.preventDefault();
-    } else if (event.keyCode == 67) {
-      const newVal = !showChooser;
-      setShowChooser(newVal);
-      updateSearchParams("chooser", newVal ? "1" : undefined);
-      event.preventDefault();
-    } else if (event.keyCode == 83) {
-      const newVal = !showStats;
-      setShowStats(newVal);
-      updateSearchParams("stats", newVal ? "1" : undefined);
-      event.preventDefault();
-    } else if (event.keyCode == 37) {
-      handleStop();
-      changeAgent(-1);
-      event.preventDefault();
-    } else if (event.keyCode == 39) {
-      handleStop();
-      changeAgent(1);
-      event.preventDefault();
-    }
-  }, [active, handleStart, voiceSession, changeAgent, handleStop, showChooser, showStats]);
+      if (event.keyCode == 32) {
+        speak();
+        event.preventDefault();
+      } else if (event.keyCode == 27) {
+        handleStop();
+        event.preventDefault();
+      } else if (event.keyCode == 67) {
+        const newVal = !showChooser;
+        setShowChooser(newVal);
+        updateSearchParams("chooser", newVal ? "1" : undefined);
+        event.preventDefault();
+      } else if (event.keyCode == 83) {
+        const newVal = !showStats;
+        setShowStats(newVal);
+        updateSearchParams("stats", newVal ? "1" : undefined);
+        event.preventDefault();
+      } else if (event.keyCode == 37) {
+        handleStop();
+        changeAgent(-1);
+        event.preventDefault();
+      } else if (event.keyCode == 39) {
+        handleStop();
+        changeAgent(1);
+        event.preventDefault();
+      }
+    },
+    [
+      active,
+      handleStart,
+      voiceSession,
+      changeAgent,
+      handleStop,
+      showChooser,
+      showStats,
+    ],
+  );
 
   // Install our handlers, and clean them up on unmount.
   useEffect(() => {
@@ -546,7 +563,7 @@ const AgentPageComponent: React.FC = () => {
         </div>
         <div className="w-full flex justify-center mt-3">
           <Button disabled={false} onClick={onButtonClick}>
-            { started ? "Stop" : "Start" }
+            {started ? "Stop" : "Start"}
           </Button>
         </div>
       </div>
