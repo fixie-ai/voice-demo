@@ -287,8 +287,7 @@ const AgentPageComponent: React.FC = () => {
   const [ttsLatency, setTtsLatency] = useState(0);
   const active = () =>
     voiceSession && voiceSession!.state != VoiceSessionState.DISCONNECTED;
-  useEffect(
-    () => init(),
+  useEffect(() => init(),
     [
       asrProvider,
       asrLanguage,
@@ -366,7 +365,12 @@ const AgentPageComponent: React.FC = () => {
       session.stop();
     };
     session.warmup();
-    return () => session.stop();
+    return () => {
+      session.stop().then(
+        () => console.log("[page] session stopped"),
+        (e) => console.error("[page] session stop error", e),
+      );
+    };
   };
   const changeAgent = (delta: number) => {
     const index = AGENT_IDS.indexOf(agentId);
