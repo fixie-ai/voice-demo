@@ -3,8 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { Deepgram } from "@deepgram/sdk";
 import { SpeechClient } from "@soniox/soniox-node";
 
-let deepgramClient: Deepgram;
-let sonioxClient: SpeechClient;
+// define these as uninitialized globals so we can cache them across requests
+let deepgramClient: Deepgram | undefined;
+let sonioxClient: SpeechClient | undefined;
 
 export const runtime = "nodejs"; // can't do 'edge' with the client libs we're using
 
@@ -35,8 +36,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function getDeepgramToken() {
-  if (!deepgramClient)
-    deepgramClient = new Deepgram(getEnvVar("DEEPGRAM_API_KEY"));
+  deepgramClient = deepgramClient ?? new Deepgram(getEnvVar("DEEPGRAM_API_KEY"));    
   const projectId = getEnvVar("DEEPGRAM_PROJECT_ID");
   const { key } = await deepgramClient.keys.create(
     projectId,
@@ -50,8 +50,7 @@ async function getDeepgramToken() {
 }
 
 async function getSonioxToken() {
-  if (!sonioxClient)
-    sonioxClient = new SpeechClient({ api_key: getEnvVar("SONIOX_API_KEY") });
+  sonioxClient = sonioxClient ?? new SpeechClient({ api_key: getEnvVar("SONIOX_API_KEY") });    
   const response = await sonioxClient.createTemporaryApiKey({
     usage_type: "transcribe_websocket",
     expires_in_s: KEY_LIFETIME_SECONDS,
