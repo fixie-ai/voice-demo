@@ -530,7 +530,7 @@ const AgentPageComponent: React.FC = () => {
           />
         </div>
         <div className="w-full flex justify-center mt-3">
-          {active() && (            
+          {active() && (
             <Button disabled={false} onClick={handleStop}>
               End Chat
             </Button>
