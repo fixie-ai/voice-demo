@@ -1,5 +1,11 @@
 "use client";
-import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useSearchParams } from "next/navigation";
 import { useSwipeable } from "react-swipeable";
 import {

@@ -36,7 +36,8 @@ export async function POST(request: NextRequest) {
 }
 
 async function getDeepgramToken() {
-  deepgramClient = deepgramClient ?? new Deepgram(getEnvVar("DEEPGRAM_API_KEY"));    
+  if (!deepgramClient)
+    deepgramClient = new Deepgram(getEnvVar("DEEPGRAM_API_KEY"));
   const projectId = getEnvVar("DEEPGRAM_PROJECT_ID");
   const { key } = await deepgramClient.keys.create(
     projectId,
@@ -50,7 +51,8 @@ async function getDeepgramToken() {
 }
 
 async function getSonioxToken() {
-  sonioxClient = sonioxClient ?? new SpeechClient({ api_key: getEnvVar("SONIOX_API_KEY") });    
+  if (!sonioxClient)
+    sonioxClient = new SpeechClient({ api_key: getEnvVar("SONIOX_API_KEY") });
   const response = await sonioxClient.createTemporaryApiKey({
     usage_type: "transcribe_websocket",
     expires_in_s: KEY_LIFETIME_SECONDS,
