@@ -378,8 +378,9 @@ const AgentPageComponent: React.FC = () => {
     setTtsLatency(0);
     voiceSession!.start();
   };
-  const handleStop = () => {
-    voiceSession!.stop();
+  const handleStop = async () => {
+    await voiceSession!.stop();
+    setTimeout(() => voiceSession!.warmup(), 1000);
   };
   const speak = () => (active() ? voiceSession!.interrupt() : handleStart());
   // Click/tap starts or interrupts.
@@ -529,12 +530,11 @@ const AgentPageComponent: React.FC = () => {
           />
         </div>
         <div className="w-full flex justify-center mt-3">
-          {voiceSession &&
-            voiceSession!.state != VoiceSessionState.DISCONNECTED && (
-              <Button disabled={false} onClick={handleStop}>
-                End Chat
-              </Button>
-            )}
+          {active() && (            
+            <Button disabled={false} onClick={handleStop}>
+              End Chat
+            </Button>
+          )}
         </div>
       </div>
     </>
