@@ -1,6 +1,6 @@
 "use client";
 import "../globals.css";
-import React, { useState, useEffect, useRef } from "react";
+import React, { Suspense, useState, useEffect, useRef } from "react";
 import {
   MicManager,
   createSpeechRecognition,
@@ -369,4 +369,9 @@ const PageComponent: React.FC = () => {
   );
 };
 
-export default PageComponent;
+const SuspensePageComponent: React.FC = () => (
+  <Suspense>
+    <PageComponent />
+  </Suspense>
+);
+export default SuspensePageComponent;

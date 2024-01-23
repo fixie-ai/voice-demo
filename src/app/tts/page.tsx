@@ -4,7 +4,7 @@ import {
   TextToSpeechBase,
   createTextToSpeech,
 } from "ai-jsx/lib/tts/tts";
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import "../globals.css";
 
@@ -275,4 +275,9 @@ const PageComponent: React.FC = () => {
   );
 };
 
-export default PageComponent;
+const SuspensePageComponent: React.FC = () => (
+  <Suspense>
+    <PageComponent />
+  </Suspense>
+);
+export default SuspensePageComponent;

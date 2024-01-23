@@ -3,8 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { Deepgram } from "@deepgram/sdk";
 import { SpeechClient } from "@soniox/soniox-node";
 
-let deepgramClient: Deepgram;
-let sonioxClient: SpeechClient;
+// define these as uninitialized globals so we can cache them across requests
+let deepgramClient: Deepgram | undefined;
+let sonioxClient: SpeechClient | undefined;
 
 export const runtime = "nodejs"; // can't do 'edge' with the client libs we're using
 

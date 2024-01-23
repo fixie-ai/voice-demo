@@ -1,5 +1,11 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useSearchParams } from "next/navigation";
 import { useSwipeable } from "react-swipeable";
 import {
@@ -8,26 +14,8 @@ import {
   VoiceSessionInit,
   VoiceSessionState,
 } from "fixie-web";
-import { getAgent, getAgentImageUrl } from "./agents";
 import Image from "next/image";
 import "../globals.css";
-
-// 1. VAD triggers silence. (Latency here is frame size + VAD delay)
-// 2. ASR sends partial transcript. ASR latency = 2-1.
-// 3. ASR sends final transcript. ASR latency = 3-1.
-// 4. LLM request is made. This can happen before 3 is complete, in which case the speculative execution savings is 3-2.
-// 5. LLM starts streaming tokens. LLM base latency = 5-4.
-// 6. LLM sends enough tokens for TTS to start (full sentence, or 50 chars). LLM token latency = 6-5, LLM total latency = 6-4.
-// 7. TTS requests chunk of audio.
-// 8. TTS chunk is received.
-// 9. TTS playout starts (usually just about instantaneous after 8). TTS latency = 9-7.
-// Total latency = 9-1 = ASR latency + LLM base latency + LLM token latency TTS latency - speculative execution savings.
-
-// Token per second rules of thumb:
-// GPT-4: 12 tps (approx 1s for 50 chars)
-// GPT-3.5: 70 tps (approx 0.2s for 50 chars)
-// Claude v1: 40 tps (approx 0.4s for 50 chars)
-// Claude Instant v1: 70 tps (approx 0.2s for 50 chars)
 
 interface LatencyThreshold {
   good: number;
@@ -35,7 +23,7 @@ interface LatencyThreshold {
 }
 
 const DEFAULT_ASR_PROVIDER = "deepgram";
-const DEFAULT_TTS_PROVIDER = "playht";
+const DEFAULT_TTS_PROVIDER = "eleven";
 const DEFAULT_LLM = "gpt-4-1106-preview";
 const ASR_PROVIDERS = [
   "aai",
@@ -62,19 +50,21 @@ const TTS_PROVIDERS = [
 const LLM_MODELS = [
   "claude-2",
   "claude-instant-1",
-  "gpt-4",
-  "gpt-4-32k",
   "gpt-4-1106-preview",
-  "gpt-3.5-turbo",
-  "gpt-3.5-turbo-16k",
+  "gpt-3.5-turbo-1106",
 ];
-const AGENT_IDS = ["ai-friend", "dr-donut", "rubber-duck"]; //, 'spanish-tutor', 'justin/ultravox', 'justin/fixie'];
+const AGENT_IDS = ["ai-friend", "dr-donut", "rubber-duck"];
 const LATENCY_THRESHOLDS: { [key: string]: LatencyThreshold } = {
   ASR: { good: 300, fair: 500 },
   LLM: { good: 300, fair: 500 },
   LLMT: { good: 300, fair: 400 },
   TTS: { good: 400, fair: 600 },
   Total: { good: 1300, fair: 2000 },
+};
+
+const getAgentImageUrl = (agentId: string) => {
+  const hasImage = AGENT_IDS.indexOf(agentId) !== -1;
+  return hasImage ? `/agents/${agentId}.webp` : "/agents/fixie.webp";
 };
 
 const updateSearchParams = (param: string, value?: string, reload = false) => {
@@ -258,20 +248,16 @@ const Button: React.FC<{
 const AgentPageComponent: React.FC = () => {
   const searchParams = useSearchParams();
   const agentId = searchParams.get("agent") || "dr-donut";
-  const agentVoice = getAgent(agentId)?.ttsVoice;
   const tapOrClick =
     typeof window != "undefined" && "ontouchstart" in window ? "Tap" : "Click";
   const idleText = `${tapOrClick} anywhere to start!`;
   const asrProvider = searchParams.get("asr") || DEFAULT_ASR_PROVIDER;
-  const asrModel = searchParams.get("asrModel") || undefined;
+  // const asrModel = searchParams.get("asrModel") || undefined;
   const asrLanguage = searchParams.get("asrLanguage") || undefined;
   const ttsProvider = searchParams.get("tts") || DEFAULT_TTS_PROVIDER;
   const ttsModel = searchParams.get("ttsModel") || undefined;
-  const ttsVoice = searchParams.get("ttsVoice") || agentVoice;
-  const model =
-    getAgent(agentId) === undefined
-      ? "fixie"
-      : searchParams.get("llm") || DEFAULT_LLM;
+  const ttsVoice = searchParams.get("ttsVoice") || undefined;
+  const model = searchParams.get("llm") || DEFAULT_LLM;
   const docs = searchParams.get("docs") !== null;
   const webrtcUrl = searchParams.get("webrtc") ?? undefined;
   const [showChooser, setShowChooser] = useState(
@@ -339,31 +325,31 @@ const AgentPageComponent: React.FC = () => {
           setHelpText(idleText);
       }
     };
-    session.onInputChange = (text, final) => {
+    session.onInputChange = (text: string, final: boolean) => {
       setInput(text);
     };
-    session.onOutputChange = (text, final) => {
+    session.onOutputChange = (text: string, final: boolean) => {
       setOutput(text);
       if (final) {
         setInput("");
       }
     };
-    session.onLatencyChange = (kind, latency) => {
-      switch (kind) {
+    session.onLatencyChange = (metric: string, value: number) => {
+      switch (metric) {
         case "asr":
-          setAsrLatency(latency);
+          setAsrLatency(value);
           setLlmResponseLatency(0);
           setLlmTokenLatency(0);
           setTtsLatency(0);
           break;
         case "llm":
-          setLlmResponseLatency(latency);
+          setLlmResponseLatency(value);
           break;
         case "llmt":
-          setLlmTokenLatency(latency);
+          setLlmTokenLatency(value);
           break;
         case "tts":
-          setTtsLatency(latency);
+          setTtsLatency(value);
           break;
       }
     };
@@ -392,8 +378,9 @@ const AgentPageComponent: React.FC = () => {
     setTtsLatency(0);
     voiceSession!.start();
   };
-  const handleStop = () => {
-    voiceSession!.stop();
+  const handleStop = async () => {
+    await voiceSession!.stop();
+    setTimeout(() => voiceSession!.warmup(), 1000);
   };
   const speak = () => (active() ? voiceSession!.interrupt() : handleStart());
   // Click/tap starts or interrupts.
@@ -554,4 +541,9 @@ const AgentPageComponent: React.FC = () => {
   );
 };
 
-export default AgentPageComponent;
+const SuspensePageComponent: React.FC = () => (
+  <Suspense>
+    <AgentPageComponent />
+  </Suspense>
+);
+export default SuspensePageComponent;

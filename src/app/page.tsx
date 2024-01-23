@@ -1,5 +1,5 @@
-import AgentPageComponent from "./agent/page";
+import SuspensePageComponent from "./agent/page";
 
 export default function Home() {
-  return <AgentPageComponent />;
+  return <SuspensePageComponent />;
 }
