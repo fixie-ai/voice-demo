@@ -25,34 +25,9 @@ interface LatencyThreshold {
 const DEFAULT_ASR_PROVIDER = "deepgram";
 const DEFAULT_TTS_PROVIDER = "eleven";
 const DEFAULT_LLM = "gpt-4-1106-preview";
-const ASR_PROVIDERS = [
-  "aai",
-  "deepgram",
-  "deepgram-turbo",
-  "gladia",
-  "revai",
-  "soniox",
-];
-const TTS_PROVIDERS = [
-  "aws",
-  "azure",
-  "eleven",
-  "eleven-ws",
-  "gcp",
-  "lmnt",
-  "lmnt-ws",
-  "murf",
-  "openai",
-  "playht",
-  "resemble",
-  "wellsaid",
-];
-const LLM_MODELS = [
-  "claude-2",
-  "claude-instant-1",
-  "gpt-4-1106-preview",
-  "gpt-3.5-turbo-1106",
-];
+const ASR_PROVIDERS = ["deepgram", "deepgram-turbo"];
+const TTS_PROVIDERS = ["aws", "azure", "eleven", "eleven-ws"];
+const LLM_MODELS = ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"];
 const AGENT_IDS = ["ai-friend", "dr-donut", "rubber-duck"];
 const LATENCY_THRESHOLDS: { [key: string]: LatencyThreshold } = {
   ASR: { good: 300, fair: 500 },
@@ -160,7 +135,7 @@ const Visualizer: React.FC<{
   const draw = (
     canvas: HTMLCanvasElement,
     state: VoiceSessionState,
-    freqData: Uint8Array,
+    freqData: Uint8Array
   ) => {
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     const marginWidth = 2;
@@ -183,7 +158,7 @@ const Visualizer: React.FC<{
         i * totalWidth + marginWidth,
         canvas.height - barHeight,
         barWidth,
-        barHeight,
+        barHeight
       );
     });
   };
@@ -261,12 +236,12 @@ const AgentPageComponent: React.FC = () => {
   const docs = searchParams.get("docs") !== null;
   const webrtcUrl = searchParams.get("webrtc") ?? undefined;
   const [showChooser, setShowChooser] = useState(
-    searchParams.get("chooser") !== null,
+    searchParams.get("chooser") !== null
   );
   const showInput = searchParams.get("input") !== null;
   const showOutput = searchParams.get("output") !== null;
   const [showStats, setShowStats] = useState(
-    searchParams.get("stats") !== null,
+    searchParams.get("stats") !== null
   );
   const [voiceSession, setVoiceSession] = useState<VoiceSession | null>();
   const [input, setInput] = useState("");
@@ -276,6 +251,7 @@ const AgentPageComponent: React.FC = () => {
   const [llmResponseLatency, setLlmResponseLatency] = useState(0);
   const [llmTokenLatency, setLlmTokenLatency] = useState(0);
   const [ttsLatency, setTtsLatency] = useState(0);
+  const isCustomAgent = AGENT_IDS.indexOf(agentId) === -1;
   const active = () =>
     voiceSession && voiceSession!.state > VoiceSessionState.IDLE;
   useEffect(
@@ -289,11 +265,11 @@ const AgentPageComponent: React.FC = () => {
       model,
       agentId,
       docs,
-    ],
+    ]
   );
   const init = () => {
     console.log(
-      `[page] init asr=${asrProvider} tts=${ttsProvider} llm=${model} agent=${agentId} docs=${docs}`,
+      `[page] init asr=${asrProvider} tts=${ttsProvider} llm=${model} agent=${agentId} docs=${docs}`
     );
     const fixieClient = new FixieClient({});
     const voiceInit: VoiceSessionInit = {
@@ -312,6 +288,9 @@ const AgentPageComponent: React.FC = () => {
     setVoiceSession(session);
     session.onStateChange = (state: VoiceSessionState) => {
       switch (state) {
+        case VoiceSessionState.IDLE:
+          setHelpText("Initializing call");
+          break;
         case VoiceSessionState.LISTENING:
           setHelpText("Listening...");
           break;
@@ -360,7 +339,7 @@ const AgentPageComponent: React.FC = () => {
     return () => {
       session.stop().then(
         () => console.log("[page] session stopped"),
-        (e) => console.error("[page] session stop error", e),
+        (e) => console.error("[page] session stop error", e)
       );
     };
   };
@@ -440,23 +419,27 @@ const AgentPageComponent: React.FC = () => {
     <>
       {showChooser && (
         <div className="absolute top-1 left-1">
-          <Dropdown
-            label="Agent"
-            param="agent"
-            value={agentId}
-            options={AGENT_IDS}
-          />
+          {!isCustomAgent && (
+            <>
+              <Dropdown
+                label="Agent"
+                param="agent"
+                value={agentId}
+                options={AGENT_IDS}
+              />
+              <Dropdown
+                label="LLM"
+                param="llm"
+                value={model}
+                options={LLM_MODELS}
+              />
+            </>
+          )}
           <Dropdown
             label="ASR"
             param="asr"
             value={asrProvider}
             options={ASR_PROVIDERS}
-          />
-          <Dropdown
-            label="LLM"
-            param="llm"
-            value={model}
-            options={LLM_MODELS}
           />
           <Dropdown
             label="TTS"
