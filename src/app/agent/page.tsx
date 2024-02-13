@@ -26,7 +26,13 @@ const DEFAULT_ASR_PROVIDER = "deepgram";
 const DEFAULT_TTS_PROVIDER = "eleven";
 const DEFAULT_LLM = "gpt-4-1106-preview";
 const ASR_PROVIDERS = ["deepgram", "deepgram-turbo"];
-const TTS_PROVIDERS = ["azure", "eleven", "eleven-ws", "playht"];
+const TTS_PROVIDERS = [
+  "azure",
+  "eleven",
+  "eleven-ws",
+  "playht",
+  "playht-local",
+];
 const LLM_MODELS = ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"];
 const AGENT_IDS = ["ai-friend", "dr-donut", "rubber-duck"];
 const LATENCY_THRESHOLDS: { [key: string]: LatencyThreshold } = {
@@ -135,7 +141,7 @@ const Visualizer: React.FC<{
   const draw = (
     canvas: HTMLCanvasElement,
     state: VoiceSessionState,
-    freqData: Uint8Array
+    freqData: Uint8Array,
   ) => {
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     const marginWidth = 2;
@@ -158,7 +164,7 @@ const Visualizer: React.FC<{
         i * totalWidth + marginWidth,
         canvas.height - barHeight,
         barWidth,
-        barHeight
+        barHeight,
       );
     });
   };
@@ -236,12 +242,12 @@ const AgentPageComponent: React.FC = () => {
   const docs = searchParams.get("docs") !== null;
   const webrtcUrl = searchParams.get("webrtc") ?? undefined;
   const [showChooser, setShowChooser] = useState(
-    searchParams.get("chooser") !== null
+    searchParams.get("chooser") !== null,
   );
   const showInput = searchParams.get("input") !== null;
   const showOutput = searchParams.get("output") !== null;
   const [showStats, setShowStats] = useState(
-    searchParams.get("stats") !== null
+    searchParams.get("stats") !== null,
   );
   const [voiceSession, setVoiceSession] = useState<VoiceSession | null>();
   const [input, setInput] = useState("");
@@ -251,6 +257,7 @@ const AgentPageComponent: React.FC = () => {
   const [llmResponseLatency, setLlmResponseLatency] = useState(0);
   const [llmTokenLatency, setLlmTokenLatency] = useState(0);
   const [ttsLatency, setTtsLatency] = useState(0);
+  const [totalLatency, setTotalLatency] = useState(0);
   const isCustomAgent = AGENT_IDS.indexOf(agentId) === -1;
   const active = () =>
     voiceSession && voiceSession!.state > VoiceSessionState.IDLE;
@@ -265,11 +272,11 @@ const AgentPageComponent: React.FC = () => {
       model,
       agentId,
       docs,
-    ]
+    ],
   );
   const init = () => {
     console.log(
-      `[page] init asr=${asrProvider} tts=${ttsProvider} llm=${model} agent=${agentId} docs=${docs}`
+      `[page] init asr=${asrProvider} tts=${ttsProvider} llm=${model} agent=${agentId} docs=${docs}`,
     );
     const fixieClient = new FixieClient({});
     const voiceInit: VoiceSessionInit = {
@@ -320,6 +327,7 @@ const AgentPageComponent: React.FC = () => {
           setLlmResponseLatency(0);
           setLlmTokenLatency(0);
           setTtsLatency(0);
+          setTotalLatency(0);
           break;
         case "llm":
           setLlmResponseLatency(value);
@@ -330,6 +338,9 @@ const AgentPageComponent: React.FC = () => {
         case "tts":
           setTtsLatency(value);
           break;
+        case "total":
+          setTotalLatency(value);
+          break;
       }
     };
     session.onError = () => {
@@ -339,7 +350,7 @@ const AgentPageComponent: React.FC = () => {
     return () => {
       session.stop().then(
         () => console.log("[page] session stopped"),
-        (e) => console.error("[page] session stop error", e)
+        (e) => console.error("[page] session stop error", e),
       );
     };
   };
@@ -355,6 +366,7 @@ const AgentPageComponent: React.FC = () => {
     setLlmResponseLatency(0);
     setLlmTokenLatency(0);
     setTtsLatency(0);
+    setTotalLatency(0);
     voiceSession!.start();
   };
   const handleStop = async () => {
@@ -458,13 +470,7 @@ const AgentPageComponent: React.FC = () => {
             <Stat name="TTS" latency={ttsLatency} />
           </>
         )}
-        <Stat
-          name="Total"
-          latency={
-            asrLatency + llmResponseLatency + llmTokenLatency + ttsLatency
-          }
-          showName={showStats}
-        />
+        <Stat name="Total" latency={totalLatency} showName={showStats} />
       </div>
       <div className="w-full flex flex-col items-center justify-center text-center">
         <div>
