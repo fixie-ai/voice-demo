@@ -360,6 +360,7 @@ const AgentPageComponent: React.FC = () => {
     setLlmResponseLatency(0);
     setLlmTokenLatency(0);
     setTtsLatency(0);
+    setTotalLatency(0);
     voiceSession!.start();
   };
   const handleStop = async () => {
