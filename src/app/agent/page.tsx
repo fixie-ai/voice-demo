@@ -26,7 +26,7 @@ const DEFAULT_ASR_PROVIDER = "deepgram";
 const DEFAULT_TTS_PROVIDER = "eleven";
 const DEFAULT_LLM = "gpt-4-1106-preview";
 const ASR_PROVIDERS = ["deepgram", "deepgram-turbo"];
-const TTS_PROVIDERS = ["azure", "eleven", "eleven-ws", "playht"];
+const TTS_PROVIDERS = ["azure", "eleven", "eleven-ws", "playht", "playht-local"];
 const LLM_MODELS = ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"];
 const AGENT_IDS = ["ai-friend", "dr-donut", "rubber-duck"];
 const LATENCY_THRESHOLDS: { [key: string]: LatencyThreshold } = {
@@ -251,6 +251,7 @@ const AgentPageComponent: React.FC = () => {
   const [llmResponseLatency, setLlmResponseLatency] = useState(0);
   const [llmTokenLatency, setLlmTokenLatency] = useState(0);
   const [ttsLatency, setTtsLatency] = useState(0);
+  const [totalLatency, setTotalLatency] = useState(0);
   const isCustomAgent = AGENT_IDS.indexOf(agentId) === -1;
   const active = () =>
     voiceSession && voiceSession!.state > VoiceSessionState.IDLE;
@@ -320,6 +321,7 @@ const AgentPageComponent: React.FC = () => {
           setLlmResponseLatency(0);
           setLlmTokenLatency(0);
           setTtsLatency(0);
+          setTotalLatency(0);
           break;
         case "llm":
           setLlmResponseLatency(value);
@@ -329,6 +331,9 @@ const AgentPageComponent: React.FC = () => {
           break;
         case "tts":
           setTtsLatency(value);
+          break;
+        case "total":
+          setTotalLatency(value);
           break;
       }
     };
@@ -460,9 +465,7 @@ const AgentPageComponent: React.FC = () => {
         )}
         <Stat
           name="Total"
-          latency={
-            asrLatency + llmResponseLatency + llmTokenLatency + ttsLatency
-          }
+          latency={totalLatency}          
           showName={showStats}
         />
       </div>
