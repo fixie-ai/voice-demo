@@ -25,9 +25,10 @@ interface LatencyThreshold {
 const DEFAULT_ASR_PROVIDER = "deepgram";
 const DEFAULT_TTS_PROVIDER = "eleven";
 const DEFAULT_LLM = "gpt-4-1106-preview";
-const ASR_PROVIDERS = ["deepgram", "deepgram-turbo"];
+const ASR_PROVIDERS = ["deepgram", "deepgram-local"];
 const TTS_PROVIDERS = [
   "azure",
+  "deepgram",
   "eleven",
   "eleven-ws",
   "playht",
