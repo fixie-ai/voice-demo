@@ -324,6 +324,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@eshaz/web-worker@npm:1.2.2":
+  version: 1.2.2
+  resolution: "@eshaz/web-worker@npm:1.2.2"
+  checksum: 5cc967272b21552aa31794388660f9e381aab523769517786439d11c828d6a179c40f7b1993e3523ca3d5c655197248f79e3419b3b13ecc0625d442bad6eb122
+  languageName: node
+  linkType: hard
+
 "@eslint-community/eslint-utils@npm:^4.2.0":
   version: 4.4.0
   resolution: "@eslint-community/eslint-utils@npm:4.4.0"
@@ -731,6 +738,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ozymandiasthegreat/vad@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "@ozymandiasthegreat/vad@npm:2.0.7"
+  checksum: 517b805cc5c91f75dab16b880641a49a3af49852f791c8abb8b0e2614652bc0ed54a822bc03b6fbb3d11902eca619728a68708367729f3dd17a5389f565c5f41
+  languageName: node
+  linkType: hard
+
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
@@ -864,6 +878,13 @@ __metadata:
   version: 3.0.0
   resolution: "@tanstack/virtual-core@npm:3.0.0"
   checksum: 667941444b70773a8fc37b907718fcdbcf90b15660f427b06d6c140b72eea636d8609a8ba5ee3d2cb363066a8085fbf5b804fd08d5cfefd432cf1a14fa7c2355
+  languageName: node
+  linkType: hard
+
+"@textlint/ast-node-types@npm:^13.4.1":
+  version: 13.4.1
+  resolution: "@textlint/ast-node-types@npm:13.4.1"
+  checksum: e3e741de16bf2a3fea931dfdfac29e773a6ce38419ac7cdd65877469f98fac9d1f1d4ceda80ad9d6bcd22bc6dda7c154b06959ec0a7415a23d79ea93fc9e81e2
   languageName: node
   linkType: hard
 
@@ -1262,6 +1283,15 @@ __metadata:
   dependencies:
     server-only: "npm:^0.0.1"
   checksum: fece944678360085a5deaea3afdade16cab67097dca6585e02a1c4c67ac3ba91b8e0bb848b7ec686b87757aad763df5bae41ce103bdc16c6e586b9390d0b4c11
+  languageName: node
+  linkType: hard
+
+"@wasm-audio-decoders/common@npm:9.0.4":
+  version: 9.0.4
+  resolution: "@wasm-audio-decoders/common@npm:9.0.4"
+  dependencies:
+    "@eshaz/web-worker": "npm:1.2.2"
+  checksum: 2233edcfb424fa2201cb340d76e47eb4a36500639f40e8a0e8c0be9bd189f67bf907b0a2b93c5a498cc71e3d024e101ca1be8d2388f0a10823174bef01f3aadf
   languageName: node
   linkType: hard
 
@@ -1723,6 +1753,13 @@ __metadata:
   dependencies:
     hoek: "npm:2.x.x"
   checksum: ad717f26d99b3600399606eda90754cf3b339c6c4117dbf8de14b0a83e22440f7eb4bcdfc293daa858d59df1ad721ef6d8112fa1a7415dafe3aa7e313ab06040
+  languageName: node
+  linkType: hard
+
+"boundary@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "boundary@npm:2.0.0"
+  checksum: 0dda2b4adda5f5ed0b35f22296fe586d96b70719e9d25bff1b565b55e4e3e9bb822a384746f2f0145bf194128486e6a3709e87b90b47195616005d2cf776d132
   languageName: node
   linkType: hard
 
@@ -2988,6 +3025,7 @@ __metadata:
     "@mdx-js/react": "npm:^2.3.0"
     "@next/eslint-plugin-next": "npm:^14.0.1"
     "@octokit/graphql": "npm:^5.0.6"
+    "@ozymandiasthegreat/vad": "npm:^2.0.7"
     "@soniox/soniox-node": "npm:^1.2.2"
     "@tailwindcss/forms": "npm:^0.5.3"
     "@types/aws4": "npm:^1.11.3"
@@ -3009,6 +3047,7 @@ __metadata:
     fixie-web: "npm:1.0.9"
     livekit-client: "npm:^1.14.4"
     lodash: "npm:^4.17.21"
+    mpg123-decoder: "npm:^0.4.9"
     next: "npm:^14.0.1"
     playht: "npm:^0.9.0-beta.7"
     postcss: "npm:8.4.24"
@@ -3018,6 +3057,7 @@ __metadata:
     react-swipeable: "npm:^7.0.1"
     remark-gfm: "npm:^3.0.1"
     request: "npm:2.79.0"
+    sentence-splitter: "npm:^4.2.1"
     tailwindcss: "npm:3.3.2"
     typescript: "npm:^5.1.3"
     word-error-rate: "npm:^0.0.7"
@@ -5216,6 +5256,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mpg123-decoder@npm:^0.4.9":
+  version: 0.4.12
+  resolution: "mpg123-decoder@npm:0.4.12"
+  dependencies:
+    "@wasm-audio-decoders/common": "npm:9.0.4"
+  checksum: ad0fb41264d39c64f57e02d88f159b2fb8f7f64a0504d4b8d89e3833f20ea53496689b715e2f3098598ca84fc0d6d266097f743ce3ddf7a0c4cdf9e8cd7c1da4
+  languageName: node
+  linkType: hard
+
 "mri@npm:^1.1.0":
   version: 1.2.0
   resolution: "mri@npm:1.2.0"
@@ -6321,6 +6370,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sentence-splitter@npm:^4.2.1":
+  version: 4.4.1
+  resolution: "sentence-splitter@npm:4.4.1"
+  dependencies:
+    "@textlint/ast-node-types": "npm:^13.4.1"
+    structured-source: "npm:^4.0.0"
+  checksum: e0aced4cc5b32bca5592abcab37a76a550dad876b56e9ba1174038614e1010aa577f139d3f62993186204f1ec177f88ba72a600fc519c16104c0a33167131361
+  languageName: node
+  linkType: hard
+
 "server-only@npm:^0.0.1":
   version: 0.0.1
   resolution: "server-only@npm:0.0.1"
@@ -6654,6 +6713,15 @@ __metadata:
     "@tokenizer/token": "npm:^0.3.0"
     peek-readable: "npm:^5.0.0"
   checksum: 4f2269679fcfce1e9fe0600eff361ea4c687ae0a0e8d9dab6703811071cd92545cbcb32d4ace3d3aa591f777cec1a3e8aeecd5efd71ae216fd2962a7a238b4ab
+  languageName: node
+  linkType: hard
+
+"structured-source@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "structured-source@npm:4.0.0"
+  dependencies:
+    boundary: "npm:^2.0.0"
+  checksum: 83871c9912d4f0ab27b557959132a85286f1d554eb8395a37642ca5845baf8a2e81ee376d86bdf6d20a2627efd21dc2db2056f6d631bc5a557d37e48068e8e40
   languageName: node
   linkType: hard
 

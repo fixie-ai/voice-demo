@@ -1,7 +1,5 @@
 "use client";
 import { split } from "sentence-splitter";
-
-// @ts-expect-error
 import { MPEGDecoder } from "mpg123-decoder";
 
 const AUDIO_WORKLET_SRC = `
