@@ -7,7 +7,7 @@ import {
   normalizeText,
   SpeechRecognitionBase,
   Transcript,
-} from "ai-jsx/lib/asr/asr";
+} from "./asr";
 import { wordErrorRate } from "word-error-rate";
 import _ from "lodash";
 
@@ -307,22 +307,13 @@ const PageComponent: React.FC = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2">
         <Asr
-          name="Deepgram (Nova)"
-          link="https://deepgram.com"
-          id="deepgram"
-          costPerMinute={0.0059}
-          manager={manager}
-          transcript={transcript}
-          model="nova"
-        />
-        <Asr
           name="Deepgram (Nova-2)"
           link="https://deepgram.com"
           id="deepgram"
           costPerMinute={0.0059}
           manager={manager}
           transcript={transcript}
-          model="nova-2-ea"
+          model="nova-2"
         />
         <Asr
           name="Soniox"
