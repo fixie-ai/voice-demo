@@ -313,7 +313,7 @@ const PageComponent: React.FC = () => {
           costPerMinute={0.0059}
           manager={manager}
           transcript={transcript}
-          model="nova-2-ea"
+          model="nova-2"
         />
         <Asr
           name="Soniox"
