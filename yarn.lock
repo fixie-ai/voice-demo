@@ -3049,7 +3049,7 @@ __metadata:
     lodash: "npm:^4.17.21"
     mpg123-decoder: "npm:^0.4.9"
     next: "npm:^14.0.1"
-    playht: "npm:^0.9.0-beta.7"
+    playht: "npm:^0.9.6"
     postcss: "npm:8.4.24"
     prettier: "npm:^3.1.1"
     react: "npm:18.2.0"
@@ -5760,7 +5760,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playht@npm:^0.9.0-beta.7":
+"playht@npm:^0.9.6":
   version: 0.9.6
   resolution: "playht@npm:0.9.6"
   dependencies:
