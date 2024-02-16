@@ -1,9 +1,5 @@
 "use client";
-import {
-  BuildUrlOptions,
-  TextToSpeechBase,
-  createTextToSpeech,
-} from "ai-jsx/lib/tts/tts";
+import { BuildUrlOptions, TextToSpeechBase, createTextToSpeech } from "./tts";
 import React, { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import "../globals.css";
@@ -182,10 +178,10 @@ const PageComponent: React.FC = () => {
       <p className="ml-2 mb-2 text-sm">{countWords(text)} words</p>
       <div className="grid grid-cols-1 md:grid-cols-2 w-full">
         <Tts
-          display="Coqui"
-          provider="coqui"
-          link="https://coqui.ai"
-          costPerKChar={0.09}
+          display="Deepgram"
+          provider="deepgram"
+          link="https://deepgram.com/product/text-to-speech"
+          costPerKChar={0}
           text={text}
         />
         <Tts
@@ -212,13 +208,6 @@ const PageComponent: React.FC = () => {
           supportsWs
           link="https://lmnt.com"
           costPerKChar={0.2}
-          text={text}
-        />
-        <Tts
-          display="Murf AI"
-          provider="murf"
-          link="https://murf.ai"
-          costPerKChar={1.0}
           text={text}
         />
         <Tts

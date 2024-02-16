@@ -23,7 +23,6 @@
     "@tailwindcss/forms": "^0.5.3",
     "@vercel/analytics": "^1.1.1",
     "ai": "^2.1.8",
-    "ai-jsx": "*",
     "autoprefixer": "10.4.14",
     "aws4fetch": "^1.0.17",
     "classnames": "^2.3.2",
