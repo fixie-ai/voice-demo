@@ -83,7 +83,7 @@ class AudioChunk {
     public buffer: ArrayBuffer,
   ) {
     const pieces = contentType.split(";");
-    this.mimeType = pieces[0].toLowerCase()
+    this.mimeType = pieces[0].toLowerCase();
     const sampleRatePiece = pieces.find((piece) =>
       piece.trim().startsWith("rate="),
     );
