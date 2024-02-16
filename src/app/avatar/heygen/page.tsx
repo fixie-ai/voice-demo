@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { NextPage } from 'next';
-import { handleICE, newSession, repeat, startSession, stopSession } from './api';
+import { handleICE, newSession, repeat, startSession, stopSession } from './helper';
+import 'dotenv/config';
 
-// Define your API keys (consider moving these to environment variables)
-const heygen_API = {
-  apiKey: 'Your api key', 
-  serverUrl: 'https://api.heygen.com',
-};
+// // Define your API keys (consider moving these to environment variables)
+// const heygen_API = {
+//   apiKey: 'Your api key', 
+//   serverUrl: 'https://api.heygen.com',
+// };
 
-export const apiKey = heygen_API.apiKey;
-export const SERVER_URL = heygen_API.serverUrl;
+// export const apiKey = process.env.HEYGEN_API_KEY || '';
+// export const SERVER_URL = process.env.HEYGEN_SERVER_URL;
 
 
 // Interface for session info

@@ -1,19 +1,15 @@
-import { SERVER_URL, apiKey } from "./page";
 
 // new session
 export async function newSession(quality: any, avatar_name: any, voice_id: any) {
-  const response = await fetch(`${SERVER_URL}/v1/streaming.new`, {
-    method: 'POST',
+  const response = await fetch(`/avatar/api/heygen/newSession`, {
+    method: "POST",
     headers: {
       'Content-Type': 'application/json',
-      'X-Api-Key': apiKey,
     },
     body: JSON.stringify({
-      quality,
-      avatar_name,
-      voice: {
-        voice_id: voice_id,
-      },
+      quality: quality,
+      avatar_name: avatar_name,
+      voice_id: voice_id,
     }),
   });
   if (response.status === 500) {
@@ -28,11 +24,10 @@ export async function newSession(quality: any, avatar_name: any, voice_id: any) 
 
 // start the session
 export async function startSession(session_id: any, sdp: any) {
-  const response = await fetch(`${SERVER_URL}/v1/streaming.start`, {
+  const response = await fetch(`/avatar/api/heygen/startSession`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Api-Key': apiKey,
     },
     body: JSON.stringify({ session_id, sdp }),
   });
@@ -47,11 +42,10 @@ export async function startSession(session_id: any, sdp: any) {
 
 // submit the ICE candidate
 export async function handleICE(session_id: any, candidate: any) {
-  const response = await fetch(`${SERVER_URL}/v1/streaming.ice`, {
+  const response = await fetch(`/avatar/api/heygen/handleICE`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Api-Key': apiKey,
     },
     body: JSON.stringify({ session_id, candidate }),
   });
@@ -66,11 +60,10 @@ export async function handleICE(session_id: any, candidate: any) {
 
 // repeat the text
 export async function repeat(session_id: any, text: any) {
-  const response = await fetch(`${SERVER_URL}/v1/streaming.task`, {
+  const response = await fetch(`/avatar/api/heygen/repeat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Api-Key': apiKey,
     },
     body: JSON.stringify({ session_id, text }),
   });
@@ -85,11 +78,10 @@ export async function repeat(session_id: any, text: any) {
 
 // stop session
 export async function stopSession(session_id: any) {
-  const response = await fetch(`${SERVER_URL}/v1/streaming.stop`, {
+  const response = await fetch(`/avatar/api/heygen/stopSession`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Api-Key': apiKey,
     },
     body: JSON.stringify({ session_id }),
   });
