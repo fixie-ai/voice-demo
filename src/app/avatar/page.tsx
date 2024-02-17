@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import "../globals.css";
 import { useSearchParams } from "next/navigation";
 import { HeyGenPage } from "./heygen/index";
@@ -19,7 +19,7 @@ const DEFAULT_TEXT =
   "me. But what makes me me is my ability to grow through my experiences. " +
   "So basically, in every moment I'm evolving, just like you.";
 
-export default function AvatarHome() {
+function AvatarHome() {
 
   const [selectedProvider, setSelectedProvider] = useState<Provider>(Provider.DID)
   const searchParams = useSearchParams();
@@ -48,4 +48,13 @@ export default function AvatarHome() {
       </div>
     </div>
   )
+}
+
+export default function SuspenseAvatarHome() {
+
+  <Suspense>
+    <AvatarHome/>
+  </Suspense>
+    
+
 }
