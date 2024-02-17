@@ -154,10 +154,12 @@ export function HeyGenPage({text}:{text: string}) {
   }, [mediaElementRef]);
 
   return (
-    <div>
-      {/* Page content, input elements, buttons, etc. */}
-
-      {/* Reference your media and canvas elements */}
+    <div className="flex flex-col gap-2">
+      <div>HeyGen Demo</div>
+      <p>1. Click connect.</p>
+      <p>2. Click start. After a few seconds, you should see the avatar rendered.</p>
+      <p>3. Click repeat to have the avatar speak the text above.</p>
+      <p>4. Click close to end the session.</p>
       <div className="flex flex-row gap-2">
         <button onClick={createNewSession} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Connect</button>
         <button onClick={startAndDisplaySession} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Start</button>

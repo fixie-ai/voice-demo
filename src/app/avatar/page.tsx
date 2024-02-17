@@ -7,10 +7,10 @@ import { useSearchParams } from "next/navigation";
 import { HeyGenPage } from "./heygen/index";
 
 enum Provider {
-  DID, 
-  HeyGen, 
-  Microsoft, 
-  Yepic
+  DID='DID', 
+  HeyGen='HeyGen', 
+  Microsoft='Microsoft', 
+  Yepic='Yepic'
 }
 
 const DEFAULT_TEXT =
@@ -21,12 +21,25 @@ const DEFAULT_TEXT =
 
 function AvatarHome() {
 
-  const [selectedProvider, setSelectedProvider] = useState<Provider>(Provider.DID)
+  const [selectedProvider, setSelectedProvider] = useState<Provider>(Provider.HeyGen)
   const searchParams = useSearchParams();
   const textParam = searchParams.get("text");
   const [text, setText] = useState(textParam || DEFAULT_TEXT);
 
-
+  function createEnumButtons<T extends string | number>(enumType: Record<string, T>): JSX.Element[] {
+    return Object.values(enumType).map((key) => (
+      <button 
+        key={key as string}
+        onClick={() => setSelectedProvider(key as Provider)}
+        className={`px-4 py-2 rounded-md mr-2 
+                   ${selectedProvider === key ? 'bg-fixie-fresh-salmon text-white'
+                                             : 'bg-gray-200 hover:bg-gray-300'
+                   }`}  
+      >
+        {key as string} 
+      </button>
+    ));
+  }
   return (
     <div className="flex min-h-screen flex-col items-start px-4 lg:px-24 py-6">
       <p className="font-sm ml-2 mb-2">
@@ -42,10 +55,17 @@ function AvatarHome() {
         value={text}
         onChange={(e) => setText(e.currentTarget.value)}
       ></textarea>
+
+      <div className="mt-2 flex flex-row mb-2">
+        {createEnumButtons(Provider)} 
+      </div>
      
       <div className="flex flex-row">
-        <HeyGenPage text={text} />
-      </div>
+        {selectedProvider === Provider.HeyGen && <HeyGenPage text={text} />}
+        {selectedProvider === Provider.DID && <div>Coming soon...</div>}
+        {selectedProvider === Provider.Microsoft && <div>Coming soon...</div>}
+        {selectedProvider === Provider.Yepic && <div>Coming soon...</div>}
+      </div>  
     </div>
   )
 }
