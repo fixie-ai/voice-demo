@@ -51,10 +51,9 @@ function AvatarHome() {
 }
 
 export default function SuspenseAvatarHome() {
-
-  <Suspense>
-    <AvatarHome/>
-  </Suspense>
-    
-
+  return (
+    <Suspense>
+      <AvatarHome/>
+    </Suspense>
+  );
 }
