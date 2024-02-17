@@ -36,6 +36,7 @@ const PROVIDER_MAP: ProviderMap = {
   aws: { func: ttsAws },
   azure: { func: ttsAzure },
   coqui: { func: ttsCoqui, mimeType: AUDIO_WAV_MIME_TYPE },
+  deepgram: { func: ttsDeepgram },
   eleven: { func: ttsEleven },
   gcp: { func: ttsGcp, keyPath: "audioContent" },
   lmnt: { func: ttsLmnt },
@@ -293,6 +294,24 @@ function ttsCoqui({ text, voice, rate }: GenerateOptions): Promise<Response> {
     speed: rate,
     language: "en",
   };
+  return postJson(url, headers, obj);
+}
+
+/**
+ * REST client for Coqui TTS.
+ */
+function ttsDeepgram({
+  text,
+  voice,
+  rate,
+}: GenerateOptions): Promise<Response> {
+  const headers = createHeaders({
+    authorization: `Token ${getEnvVar("DEEPGRAM_API_KEY")}`,
+    accept: AUDIO_WAV_MIME_TYPE,
+  });
+  const model_string = `alpha-${voice}-en`;
+  const url = `https://api.beta.deepgram.com/v1/speak?model=${model_string}&encoding=mp3&bit_rate=48000`;
+  const obj = { text };
   return postJson(url, headers, obj);
 }
 
