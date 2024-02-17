@@ -4,7 +4,7 @@
 import { useState } from "react"
 import "../globals.css";
 import { useSearchParams } from "next/navigation";
-import { HeyGenPage } from "./heygen/page";
+import { HeyGenPage } from "./heygen/index";
 
 enum Provider {
   DID, 
