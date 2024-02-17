@@ -7,12 +7,12 @@ async function doPost(url: string, data: any) {
     },
     body: JSON.stringify(data),
   });
+  const rawResponse = await response.json();
   if (response.status === 500) {
-    console.error('Server error');
-    throw new Error('Server error');
+    console.error(response.status, 'Server error', rawResponse);
+    throw new Error('Server error', rawResponse);
   } else {
-    const data = await response.json();
-    return data.data;
+    return rawResponse.data;
   }
 }
 
