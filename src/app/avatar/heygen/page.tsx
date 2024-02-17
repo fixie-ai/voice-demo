@@ -3,16 +3,6 @@ import type { NextPage } from 'next';
 import { handleICE, newSession, repeat, startSession, stopSession } from './helper';
 import 'dotenv/config';
 
-// // Define your API keys (consider moving these to environment variables)
-// const heygen_API = {
-//   apiKey: 'Your api key', 
-//   serverUrl: 'https://api.heygen.com',
-// };
-
-// export const apiKey = process.env.HEYGEN_API_KEY || '';
-// export const SERVER_URL = process.env.HEYGEN_SERVER_URL;
-
-
 // Interface for session info
 interface SessionInfo {
   session_id: string;
@@ -175,8 +165,9 @@ export function HeyGenPage({text}:{text: string}) {
         <button onClick={repeatHandler} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Repeat</button>
         
       </div>
-      <video ref={mediaElementRef} id="mediaElement" />
-      <canvas ref={canvasElementRef} id="canvasElement" /> 
+      <div className="mt-6 w-[400px] h-[400px]">
+        <video ref={mediaElementRef} id="mediaElement" />
+      </div>
     </div>
   );
 };

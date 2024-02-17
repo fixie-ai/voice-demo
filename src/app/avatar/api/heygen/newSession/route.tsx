@@ -3,6 +3,7 @@ export async function POST(req: Request): Promise<Response> {
     console.log('POST request received');
     const body = await req.json();
     const { quality, avatar_name, voice_id } = body;
+    
     const SERVER_URL = process.env.HEYGEN_SERVER_URL || '';
     const apiKey = process.env.HEYGEN_API_KEY || '';
 
