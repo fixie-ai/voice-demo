@@ -5,6 +5,7 @@ import { Suspense, useState } from "react"
 import "../globals.css";
 import { useSearchParams } from "next/navigation";
 import { HeyGenPage } from "./heygen/index";
+import { DIDPage } from "./did";
 
 enum Provider {
   DID='DID', 
@@ -21,7 +22,7 @@ const DEFAULT_TEXT =
 
 function AvatarHome() {
 
-  const [selectedProvider, setSelectedProvider] = useState<Provider>(Provider.HeyGen)
+  const [selectedProvider, setSelectedProvider] = useState<Provider>(Provider.DID)
   const searchParams = useSearchParams();
   const textParam = searchParams.get("text");
   const [text, setText] = useState(textParam || DEFAULT_TEXT);
@@ -44,8 +45,6 @@ function AvatarHome() {
     <div className="flex min-h-screen flex-col items-start px-4 lg:px-24 py-6">
       <p className="font-sm ml-2 mb-2">
         This demo showcases the different avatar providers. 
-        Clicking the play button will convert the text below to an avatar that will speak the 
-        text using the selected voice provider (defaults to ElevenLabs).
       </p>
       <textarea
         className="m-2"
@@ -62,7 +61,7 @@ function AvatarHome() {
      
       <div className="flex flex-row">
         {selectedProvider === Provider.HeyGen && <HeyGenPage text={text} />}
-        {selectedProvider === Provider.DID && <div>Coming soon...</div>}
+        {/* {selectedProvider === Provider.DID && <DIDPage text={text}/> } */}
         {selectedProvider === Provider.Microsoft && <div>Coming soon...</div>}
         {selectedProvider === Provider.Yepic && <div>Coming soon...</div>}
       </div>  
