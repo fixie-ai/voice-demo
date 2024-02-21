@@ -19,9 +19,8 @@ export function HeyGenPage({text}:{text: string}) {
   const initializeAndStartSession = async () => {
     console.log('Initializing and starting session... please wait');
   
-    // Simplified: Replace these with your actual logic to get these values
-    const avatar = ''; // Example, replace with actual
-    const voice = ''; // Example, replace with actual
+    const avatar = ''; 
+    const voice = '';
   
     try {
       // Assuming newSession is defined elsewhere and returns a promise of SessionInfo
@@ -63,7 +62,6 @@ export function HeyGenPage({text}:{text: string}) {
       const localDescription = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(localDescription);
   
-      // Assuming startSession function is implemented and available
       await startSession(session.session_id, localDescription);
   
       console.log('Session initialized and started successfully');
@@ -121,11 +119,11 @@ export function HeyGenPage({text}:{text: string}) {
   return (
     <div className="flex flex-col gap-2">
       <div>HeyGen Demo</div>
-      <p>1. Click start. After a few seconds, you should see the avatar rendered.</p>
+      <p>1. Click connect. After a few seconds, you should see the avatar rendered.</p>
       <p>2. Click speak to have the avatar speak the text above.</p>
       <p>3. Click close to end the session.</p>
       <div className="flex flex-row gap-2">
-        <button onClick={initializeAndStartSession} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Start</button>
+        <button onClick={initializeAndStartSession} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Connect</button>
         <button onClick={repeatHandler} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Speak</button>
         <button onClick={closeConnectionHandler} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Close</button>
       </div>

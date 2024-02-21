@@ -61,7 +61,7 @@ function AvatarHome() {
      
       <div className="flex flex-row">
         {selectedProvider === Provider.HeyGen && <HeyGenPage text={text} />}
-        {/* {selectedProvider === Provider.DID && <DIDPage text={text}/> } */}
+        {selectedProvider === Provider.DID && <DIDPage text={text}/> }
         {selectedProvider === Provider.Microsoft && <div>Coming soon...</div>}
         {selectedProvider === Provider.Yepic && <div>Coming soon...</div>}
       </div>  
