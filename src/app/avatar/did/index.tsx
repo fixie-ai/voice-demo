@@ -1,16 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { handleICE, handleSDP, newSession, talk } from './helper';
-import { spread } from 'lodash';
 
-interface PresenterInput {
-  [service: string]: {
-    source_url?: string;
-    presenter_id?: string;
-    driver_id?: string;
-  };
-}
-
-const DID_SERVER_URL="https://api.d-id.com"
 
 export function DIDPage({text}: {text: string}) {
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
@@ -20,18 +10,6 @@ export function DIDPage({text}: {text: string}) {
   const [connected, setConnected] = useState(false);
 
 
-
-  const presenterInputByService: PresenterInput = {
-    talks: {
-      source_url: 'https://d-id-public-bucket.s3.amazonaws.com/or-roman.jpg',
-    },
-    clips: {
-      presenter_id: 'rian-lZC6MmWfC1',
-      driver_id: 'mXra4jY38i',
-    },
-  };
-
-  // Similar to the original script, define other state variables and methods as needed.
 
   useEffect(() => {
     // Cleanup peer connection on component unmount
@@ -148,15 +126,16 @@ export function DIDPage({text}: {text: string}) {
     <div className="flex flex-col gap-2">
       <div>DID Demo</div>
       <p>1. Click connect. Wait a few seconds.</p>
-      <p>2. Click speak to have the avatar speak. Note: this demo only has canned audio for now</p>
+      <p>2. Click speak to have the avatar speak</p>
       <p>3. Reload the page to end the session.</p>
+      <p>Note: this demo can only use canned audio (for now).</p>
       <div className="flex flex-row gap-2">
         <button onClick={connect} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Connect</button>
         <button onClick={start} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Speak</button>
       </div>
 
       <div className="mt-6 w-[400px] h-[400px]">
-        {connected && <div>Connection ready, press speak to render avatar. </div>}
+        {connected && <div>Connection ready, press speak to render the avatar. </div>}
         <video ref={mediaElementRef} id="mediaElement" />
       </div>
 
