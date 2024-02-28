@@ -27,6 +27,7 @@
     "autoprefixer": "10.4.14",
     "aws4fetch": "^1.0.17",
     "classnames": "^2.3.2",
+    "dotenv": "^16.4.4",
     "eslint": "8.42.0",
     "eslint-config-next": "^14.0.1",
     "fixie-web": "1.0.9",

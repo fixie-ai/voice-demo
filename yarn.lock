@@ -2296,6 +2296,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^16.4.4":
+  version: 16.4.4
+  resolution: "dotenv@npm:16.4.4"
+  checksum: ddf43ede209d5f54c9da688e93326162eb0fc367ad1869909568cb15571ab8c87a0fab4e1d4af9860be0571c707a8b4aefa060a4f1b0bb14298a81e0ccf0017d
+  languageName: node
+  linkType: hard
+
 "eastasianwidth@npm:^0.2.0":
   version: 0.2.0
   resolution: "eastasianwidth@npm:0.2.0"
@@ -3041,6 +3048,7 @@ __metadata:
     autoprefixer: "npm:10.4.14"
     aws4fetch: "npm:^1.0.17"
     classnames: "npm:^2.3.2"
+    dotenv: "npm:^16.4.4"
     eslint: "npm:8.42.0"
     eslint-config-next: "npm:^14.0.1"
     eslint-config-nth: "npm:^2.0.1"
