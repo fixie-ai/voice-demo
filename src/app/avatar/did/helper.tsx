@@ -1,7 +1,7 @@
 'use client';
 
-async function doPost(url: string, data: any) {
-  const response = await fetch(url, {
+async function doPost(path: string, data: any) {
+  const response = await fetch(path, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
