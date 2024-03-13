@@ -309,8 +309,8 @@ function ttsDeepgram({
     authorization: `Token ${getEnvVar("DEEPGRAM_API_KEY")}`,
     accept: AUDIO_WAV_MIME_TYPE,
   });
-  const model_string = `alpha-${voice}-en`;
-  const url = `https://api.beta.deepgram.com/v1/speak?model=${model_string}&encoding=mp3&bit_rate=48000`;
+  const model_string = `aura-${voice}-en`;
+  const url = `https://api.deepgram.com/v1/speak?model=${model_string}&encoding=mp3&bit_rate=48000`;
   const obj = { text };
   return postJson(url, headers, obj);
 }

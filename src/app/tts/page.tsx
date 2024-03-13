@@ -181,7 +181,7 @@ const PageComponent: React.FC = () => {
           display="Deepgram"
           provider="deepgram"
           link="https://deepgram.com/product/text-to-speech"
-          costPerKChar={0}
+          costPerKChar={0.015}
           text={text}
         />
         <Tts
