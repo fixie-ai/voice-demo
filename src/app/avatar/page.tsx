@@ -4,11 +4,14 @@
 import { Suspense, useState } from "react"
 import "../globals.css";
 import { useSearchParams } from "next/navigation";
-import { HeyGenPage } from "./heygen/index";
+import { HeyGenPage } from "./heygen";
 import { DIDPage } from "./did";
+import { AzurePage } from "./azure";
+
 
 enum Provider {
-  DID='DID', 
+  DIDTalks='DIDTalks',
+  DIDClips='DIDClips', 
   HeyGen='HeyGen', 
   Microsoft='Microsoft', 
   Yepic='Yepic'
@@ -22,7 +25,7 @@ const DEFAULT_TEXT =
 
 function AvatarHome() {
 
-  const [selectedProvider, setSelectedProvider] = useState<Provider>(Provider.DID)
+  const [selectedProvider, setSelectedProvider] = useState<Provider>(Provider.DIDTalks)
   const searchParams = useSearchParams();
   const textParam = searchParams.get("text");
   const [text, setText] = useState(textParam || DEFAULT_TEXT);
@@ -42,29 +45,28 @@ function AvatarHome() {
     ));
   }
   return (
-    <div className="flex min-h-screen flex-col items-start px-4 lg:px-24 py-6">
+    <div className="flex min-h-screen flex-col items-start">
       <p className="font-sm ml-2 mb-2">
         This demo showcases the different avatar providers. 
       </p>
+      <div className="mt-2 flex flex-row mb-2">
+        {createEnumButtons(Provider)} 
+      </div>
       <textarea
         className="m-2"
-        cols={80}
-        rows={6}
+        cols={60}
+        rows={8}
         id="input"
         value={text}
         onChange={(e) => setText(e.currentTarget.value)}
       ></textarea>
-
-      <div className="mt-2 flex flex-row mb-2">
-        {createEnumButtons(Provider)} 
-      </div>
-     
       <div className="flex flex-row">
         {selectedProvider === Provider.HeyGen && <HeyGenPage text={text} />}
-        {selectedProvider === Provider.DID && <DIDPage text={text}/> }
-        {selectedProvider === Provider.Microsoft && <div>Coming soon...</div>}
+        {selectedProvider === Provider.DIDTalks && <DIDPage service="talks" text={text}/> }
+        {selectedProvider === Provider.DIDClips && <DIDPage service="clips" text={text}/> }
+        {selectedProvider === Provider.Microsoft && <AzurePage text={text}/> }
         {selectedProvider === Provider.Yepic && <div>Coming soon...</div>}
-      </div>  
+      </div> 
     </div>
   )
 }
