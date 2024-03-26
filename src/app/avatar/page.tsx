@@ -1,16 +1,14 @@
 "use client";
-//<button onClick={connect} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Connect</button>
-
 import { Suspense, useEffect, useRef, useState } from "react";
 import "../globals.css";
 import { useSearchParams } from "next/navigation";
-import { PeerConnectionClient } from "./pc";
+import { PeerConnectionClient, RestPeerConnectionClient } from "./pc";
 
-class DIDClient extends PeerConnectionClient {
-  constructor(video: HTMLVideoElement, service: string) {
-    super(video, "did", service);
-  }
-}
+const DEFAULT_TEXT =
+  "Well, basically I have intuition. I mean, the DNA of who " +
+  "I am is based on the millions of personalities of all the programmers who wrote " +
+  "me. But what makes me me is my ability to grow through my experiences. " +
+  "So basically, in every moment I'm evolving, just like you.";
 
 enum Provider {
   DIDTalks = "D-ID Talks",
@@ -20,19 +18,32 @@ enum Provider {
   Yepic = "Yepic",
 }
 
-const DEFAULT_TEXT =
-  "Well, basically I have intuition. I mean, the DNA of who " +
-  "I am is based on the millions of personalities of all the programmers who wrote " +
-  "me. But what makes me me is my ability to grow through my experiences. " +
-  "So basically, in every moment I'm evolving, just like you.";
+  class DidTalksClient extends RestPeerConnectionClient {
+    constructor(mediaElement: HTMLVideoElement) {
+      super(mediaElement, "did", "talks");
+    }
+  }
+  
+  class DidClipsClient extends RestPeerConnectionClient {
+    constructor(mediaElement: HTMLVideoElement) {
+      super(mediaElement, "did", "clips");
+    }
+  }
+  
+  class HeyGenClient extends RestPeerConnectionClient {
+    constructor(mediaElement: HTMLVideoElement) {
+      super(mediaElement, "heygen");
+    }
+  }
 
 function AvatarHome() {
   const searchParams = useSearchParams();
   const textParam = searchParams.get("text");
   const [text, setText] = useState(textParam || DEFAULT_TEXT);
-  const clientRef = useRef<PeerConnectionClient | null>(null);
   const mediaElementRef = useRef<HTMLVideoElement>(null);
-  const [connected, setConnected] = useState(false);
+  const clientRef = useRef<PeerConnectionClient | null>(null);
+  const [currentProvider, setCurrentProvider] = useState<Provider | null>(null);
+  const [connectionState, setConnectionState] = useState("");
 
   useEffect(() => {
     // Cleanup peer connection on component unmount
@@ -48,37 +59,37 @@ function AvatarHome() {
       <button
         key={key as string}
         onClick={() => generate(key as Provider)}
-        className="m-1 rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon"
+        className="mr-1 rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon"
       >
         {key as string}
       </button>
     ));
   }
+  const createConnectionText = () => {
+    return currentProvider ? `${currentProvider}: ${connectionState}` : "";
+  };
   const createClient = (provider: Provider) => {
     switch (provider) {
       case Provider.DIDTalks:
-        return new PeerConnectionClient(
-          mediaElementRef.current!,
-          "did",
-          "talks",
-        );
+        return new DidTalksClient(mediaElementRef.current!);
       case Provider.DIDClips:
-        return new PeerConnectionClient(
-          mediaElementRef.current!,
-          "did",
-          "clips",
-        );
+        return new DidClipsClient(mediaElementRef.current!);
       case Provider.HeyGen:
-        return new PeerConnectionClient(mediaElementRef.current!, "heygen");
+        return new HeyGenClient(mediaElementRef.current!);
+      //case Provider.Microsoft:
+      //  return new AzureClient(mediaElementRef.current!);
       default:
         throw new Error("Not implemented yet");
     }
   };
   const connect = async (provider: Provider) => {
     clientRef.current = createClient(provider);
+    setCurrentProvider(provider);
+    setConnectionState("connecting");
     clientRef.current.addEventListener(
-      "connected",
-      (evt: CustomEventInit<boolean>) => setConnected(!!evt.detail),
+      "connectionState",
+      (evt: CustomEventInit<RTCPeerConnectionState>) =>
+        setConnectionState(evt.detail!),
     );
     await clientRef.current.connect();
     while (!clientRef.current.connected) {
@@ -86,7 +97,8 @@ function AvatarHome() {
     }
   };
   const generate = async (provider: Provider) => {
-    if (!clientRef.current) {
+    if (!clientRef.current || provider != currentProvider) {
+      clientRef.current?.close();
       await connect(provider);
     }
     await clientRef.current?.generate({ text: { text } });
@@ -98,10 +110,10 @@ function AvatarHome() {
         This demo showcases the different avatar providers.
       </p>
       <div className="flex">
-        <div className="flex-1 m-2">
+        <div className="flex-1 m-2 h-64">
           <textarea
-            cols={60}
-            rows={8}
+            cols={48}
+            rows={10}
             id="input"
             value={text}
             onChange={(e) => setText(e.currentTarget.value)}
@@ -117,7 +129,7 @@ function AvatarHome() {
         </div>
       </div>
       <div className="m-2 flex flex-row">{createEnumButtons(Provider)}</div>
-      {connected && <div>Connected</div>}
+      <div className="ml-2 mt-1 text-sm">{createConnectionText()}</div>
     </div>
   );
 }

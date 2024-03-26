@@ -104,8 +104,8 @@ export class DIDHandler implements ServiceHandler {
     const body = {
       session_id: session.session_id,
       script,
-      background: { color: "#FFFFFF" },
-      config: { stitch: true },
+      background: { color: data.background_color ?? "#FFFFFF" },
+      //config: { stitch: true, result_format: "webm" },
     };
     await doPost(buildPath(this.service, session), body);
   }

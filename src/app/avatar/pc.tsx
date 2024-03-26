@@ -1,5 +1,4 @@
 "use client";
-import { property } from "lodash";
 import { SessionData, SessionResponse, GenerateData } from "./types";
 
 async function invoke(method: string, path: string, data: any) {
@@ -41,65 +40,41 @@ async function stopSession(session: SessionData) {
   return doPost(`/avatar/api/stop`, { session });
 }
 
-export class PeerConnectionClient extends EventTarget {
+export abstract class PeerConnectionClient extends EventTarget {
   private video: HTMLVideoElement;
-  private session: SessionData;
-  private pc?: RTCPeerConnection;
-  constructor(video: HTMLVideoElement, provider: string, service?: string) {
+  protected pc?: RTCPeerConnection;
+  private _backgroundColor = "#FFFFFF";
+  constructor(video: HTMLVideoElement) {
     super();
     this.video = video;
-    this.session = { provider, service };
   }
-  get connected() {
+  get connected(): boolean {
     return this.pc?.connectionState === "connected";
   }
-  async connect() {
-    if (this.pc) {
-      console.error("Peer connection already exists");
-      return;
-    }
-    const { session_id, stream_id, ice_servers, sdp } = await startSession(
-      this.session,
-    );
-    this.session.session_id = session_id;
-    this.session.stream_id = stream_id;
-    this.createPeerConnection(ice_servers);
-    const localSdp = await this.signalServerToClient(sdp);
-    await handleSDP(this.session!, localSdp);
-    console.log("Peer connection negotiation complete");
+  get backgroundColor(): string {
+    return this._backgroundColor;
   }
-  async generate(data: GenerateData) {
-    if (!this.pc) {
-      console.error("Peer connection does not exist");
-      return;
-    }
-    await generate(this.session!, data);
+  set backgroundColor(newColor: string) {
+    this._backgroundColor = newColor;
   }
-  async close() {
-    if (!this.pc || this.pc.connectionState === "closed") {
-      return;
-    }
-    await stopSession(this.session);
-    this.pc.close();
+  abstract connect(): void;
+  abstract generate(data: GenerateData): void;
+  close() {
+    this.pc?.close();
   }
-  private createPeerConnection(iceServers: RTCIceServer[]) {
+  
+  protected createPeerConnection(iceServers: RTCIceServer[]) {
     this.pc = new RTCPeerConnection({ iceServers });
     this.pc.onconnectionstatechange = () => {
-      console.log(
-        `ICE connection state changed to: ${this.pc!.iceConnectionState}`,
-      );
-      if (this.pc!.connectionState === "connected") {
-        const ev = new CustomEvent("connected", { detail: true });
-        this.dispatchEvent(ev);
-      } else if (this.pc!.connectionState === "disconnected") {
-        const ev = new CustomEvent("connected", { detail: false });
-        this.dispatchEvent(ev);
-      }
+      const state = this.pc!.connectionState;
+      console.log(`Connection state changed to: ${state}`);
+      const ev = new CustomEvent("connectionState", { detail: state });
+      this.dispatchEvent(ev);
     };
     this.pc.onicecandidate = ({ candidate }) => {
-      console.log("Received ICE candidate:", candidate);
       if (candidate) {
-        handleICE(this.session!, candidate);
+        console.log("Gathered ICE candidate:", candidate);
+        this.handleICE(candidate);
       }
     };
     this.pc.ontrack = (event) => {
@@ -115,32 +90,62 @@ export class PeerConnectionClient extends EventTarget {
       console.log("Received data channel:", event);
     };
   }
-  private async signalServerToClient(
-    offer: RTCSessionDescriptionInit,
-  ): Promise<RTCSessionDescriptionInit> {
-    await this.pc!.setRemoteDescription(offer);
+  protected abstract handleICE(candidate: RTCIceCandidateInit): void;
+}
+
+export class RestPeerConnectionClient extends PeerConnectionClient {
+  private session: SessionData;
+  constructor(video: HTMLVideoElement, provider: string, service?: string) {
+    super(video);
+    this.session = { provider, service };
+  }
+  async connect() {
+    if (this.pc) {
+      console.error("Peer connection already exists");
+      return;
+    }
+    const { session_id, stream_id, ice_servers, sdp } = await startSession(
+      this.session
+    );
+    this.session.session_id = session_id;
+    this.session.stream_id = stream_id;
+    this.createPeerConnection(ice_servers);
+    await this.pc!.setRemoteDescription(sdp);
     const answer = await this.pc!.createAnswer();
     await this.pc!.setLocalDescription(answer);
-    return answer;
+    await handleSDP(this.session!, answer);
+    console.log("Peer connection negotiation complete");
   }
-
-  private async signalClientToServer(
-    sendFunc: (
-      sdp: RTCSessionDescriptionInit,
-    ) => Promise<RTCSessionDescriptionInit>,
-  ) {
-    const offer = await this.pc!.createOffer();
-    await this.pc!.setLocalDescription(offer);
-    const answer = await sendFunc(offer);
-    await this.pc!.setRemoteDescription(answer);
+  async generate(data: GenerateData) {
+    if (!this.pc) {
+      console.error("Peer connection does not exist");
+      return;
+    }
+    if (!data.background_color) {
+      data.background_color = this.backgroundColor;
+    }
+    await generate(this.session!, data);
+  }
+  async close() {
+    if (!this.pc || this.pc.connectionState === "closed") {
+      return;
+    }
+    // If stopSession fails, just eat the error.
+    try {
+      await stopSession(this.session);
+    } catch (err) {
+      console.log(`Error stopping session: ${err}`);
+    }
+    super.close();
+  }
+  protected handleICE(candidate: RTCIceCandidateInit) {
+    handleICE(this.session, candidate);
   }
 }
+
 /*
 let lastBytesReceived = 0;
-
 let videoIsPlaying = false; 
-
-  
 peerConnection.ontrack = (event) => {
 
     setInterval(async () => {

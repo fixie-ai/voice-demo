@@ -1,6 +1,8 @@
 import { SessionData, SessionResponse, GenerateData } from "../types";
 import { ServiceHandler } from "./base";
 
+//const DEFAULT_TTS_VOICE = "en-US-TonyNeural";
+
 async function invoke(method: string, path: string, data?: any) {
   const SERVER_URL = process.env.HEYGEN_SERVER_URL || "";
   const API_KEY = process.env.HEYGEN_API_KEY || "";
@@ -14,6 +16,10 @@ async function invoke(method: string, path: string, data?: any) {
     body: JSON.stringify(data),
   });
   const responseData = await response.json();
+  if (!response.ok) {
+    console.error(response.status, "Server error", responseData);
+    throw new Error("Server error");
+  }
   return new Response(JSON.stringify(responseData), {
     status: response.status,
   });
@@ -29,7 +35,7 @@ function buildPath(suffix?: string): string {
 
 export class HeyGenHandler implements ServiceHandler {
   async start(): Promise<SessionResponse> {
-    const body = { quality: "high" };
+    const body = { quality: "high" }; //, voice: { voice_id: DEFAULT_TTS_VOICE } };
     const resp = await doPost(buildPath("new"), body);
     const outBody = await resp.json();
     const data = outBody.data;
@@ -62,24 +68,3 @@ export class HeyGenHandler implements ServiceHandler {
     await doPost(buildPath("task"), body);
   }
 }
-
-/*
-const postBody = {
-  script: {
-    type: 'text', 
-    input: body.text //audio_url: body.audio_url, //hardcoded for now
-  }, 
-  ...(body.service === 'clips' && {
-    background: {
-      color: false,
-    },
-    config: {
-      result_format: "webm"
-    },    
-  }),
-  config: {
-    stitch: true,
-  },
-  session_id: body.session_id,
-};
-*/
