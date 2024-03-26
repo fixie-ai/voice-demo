@@ -1,38 +1,18 @@
 import { SessionData, SessionResponse, GenerateData } from "../types";
 import { ServiceHandler } from "./base";
+import { Invoker } from "./invoker";
 
 const DEFAULT_TTS_PROVIDER = "microsoft";
-const DEFAULT_TTS_VOICE = "en-US-GuyNeural";
+const DEFAULT_TTS_VOICE = "en-US-JennyNeural";
 
-const SOURCE_URL = "https://d-id-public-bucket.s3.amazonaws.com/or-roman.jpg";
-const PRESENTER_ID = "rian-lZC6MmWfC1";
-const DRIVER_ID = "mXra4jY38i";
+const SOURCE_URL = "https://i.imgur.com/ltxHLqK.jpg"; // Dr. Donut worker
+const PRESENTER_ID = "amy-Aq6OmGZnMt"; // Amy
+const DRIVER_ID = "hORBJB77ln"; // Amy-specifc driver
 
-async function invoke(method: string, path: string, data?: any) {
-  const SERVER_URL = process.env.DID_SERVER_URL || "";
-  const API_KEY = process.env.DID_API_KEY || "";
-  const url = `${SERVER_URL}${path}`;
-  const response = await fetch(url, {
-    method,
-    headers: {
-      Authorization: `Basic ${API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  const responseData = await response.json();
-  if (!response.ok) {
-    console.error(response.status, "Server error", responseData);
-    throw new Error("Server error");
-  }
-  return new Response(JSON.stringify(responseData), {
-    status: response.status,
-  });
-}
-
-async function doPost(path: string, data?: any) {
-  return invoke("POST", path, data);
-}
+const invoker = new Invoker(
+  process.env.DID_SERVER_URL,
+  process.env.DID_API_KEY,
+);
 
 function buildPath(
   prefix: string,
@@ -59,7 +39,7 @@ export class DIDHandler implements ServiceHandler {
     } else {
       body = { presenter_id: PRESENTER_ID, driver_id: DRIVER_ID };
     }
-    const resp = await doPost(buildPath(this.service), body);
+    const resp = await invoker.post(buildPath(this.service), body);
     const outBody = await resp.json();
     return {
       session_id: outBody.session_id,
@@ -70,14 +50,14 @@ export class DIDHandler implements ServiceHandler {
   }
   async stop(session: SessionData): Promise<void> {
     const body = { session_id: session.session_id };
-    await invoke("DELETE", buildPath(this.service, session), body);
+    await invoker.delete(buildPath(this.service, session), body);
   }
   async sdp(
     session: SessionData,
     sdp: RTCSessionDescriptionInit,
   ): Promise<void> {
     const body = { session_id: session.session_id, answer: sdp };
-    await doPost(buildPath(this.service, session, "sdp"), body);
+    await invoker.post(buildPath(this.service, session, "sdp"), body);
   }
   async ice(
     session: SessionData,
@@ -89,7 +69,7 @@ export class DIDHandler implements ServiceHandler {
       sdpMLineIndex: candidate.sdpMLineIndex,
       sdpMid: candidate.sdpMid,
     };
-    await doPost(buildPath(this.service, session, "ice"), body);
+    await invoker.post(buildPath(this.service, session, "ice"), body);
   }
   async generate(session: SessionData, data: GenerateData): Promise<void> {
     const script = {
@@ -107,7 +87,7 @@ export class DIDHandler implements ServiceHandler {
       background: { color: data.background_color ?? "#FFFFFF" },
       //config: { stitch: true, result_format: "webm" },
     };
-    await doPost(buildPath(this.service, session), body);
+    await invoker.post(buildPath(this.service, session), body);
   }
 }
 

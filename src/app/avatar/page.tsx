@@ -3,6 +3,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import "../globals.css";
 import { useSearchParams } from "next/navigation";
 import { PeerConnectionClient, RestPeerConnectionClient } from "./pc";
+import { AzureClient } from "./azure";
 
 const DEFAULT_TEXT =
   "Well, basically I have intuition. I mean, the DNA of who " +
@@ -18,23 +19,23 @@ enum Provider {
   Yepic = "Yepic",
 }
 
-  class DidTalksClient extends RestPeerConnectionClient {
-    constructor(mediaElement: HTMLVideoElement) {
-      super(mediaElement, "did", "talks");
-    }
+class DidTalksClient extends RestPeerConnectionClient {
+  constructor(mediaElement: HTMLVideoElement) {
+    super(mediaElement, "did", "talks");
   }
-  
-  class DidClipsClient extends RestPeerConnectionClient {
-    constructor(mediaElement: HTMLVideoElement) {
-      super(mediaElement, "did", "clips");
-    }
+}
+
+class DidClipsClient extends RestPeerConnectionClient {
+  constructor(mediaElement: HTMLVideoElement) {
+    super(mediaElement, "did", "clips");
   }
-  
-  class HeyGenClient extends RestPeerConnectionClient {
-    constructor(mediaElement: HTMLVideoElement) {
-      super(mediaElement, "heygen");
-    }
+}
+
+class HeyGenClient extends RestPeerConnectionClient {
+  constructor(mediaElement: HTMLVideoElement) {
+    super(mediaElement, "heygen");
   }
+}
 
 function AvatarHome() {
   const searchParams = useSearchParams();
@@ -76,8 +77,8 @@ function AvatarHome() {
         return new DidClipsClient(mediaElementRef.current!);
       case Provider.HeyGen:
         return new HeyGenClient(mediaElementRef.current!);
-      //case Provider.Microsoft:
-      //  return new AzureClient(mediaElementRef.current!);
+      case Provider.Microsoft:
+        return new AzureClient(mediaElementRef.current!);
       default:
         throw new Error("Not implemented yet");
     }
@@ -101,7 +102,7 @@ function AvatarHome() {
       clientRef.current?.close();
       await connect(provider);
     }
-    await clientRef.current?.generate({ text: { text } });
+    await clientRef.current!.generate({ text: { text } });
   };
 
   return (
@@ -109,27 +110,20 @@ function AvatarHome() {
       <p className="font-sm ml-2 mb-2">
         This demo showcases the different avatar providers.
       </p>
-      <div className="flex">
-        <div className="flex-1 m-2 h-64">
-          <textarea
-            cols={48}
-            rows={10}
-            id="input"
-            value={text}
-            onChange={(e) => setText(e.currentTarget.value)}
-          ></textarea>
-        </div>
-        <div className="flex-1 m-2">
-          <video
-            width="256"
-            height="256"
-            ref={mediaElementRef}
-            className="border border-black"
-          />
-        </div>
+      <div className="m-2 mb-1">
+        <textarea
+          cols={60}
+          rows={5}
+          id="input"
+          value={text}
+          onChange={(e) => setText(e.currentTarget.value)}
+        ></textarea>
       </div>
       <div className="m-2 flex flex-row">{createEnumButtons(Provider)}</div>
       <div className="ml-2 mt-1 text-sm">{createConnectionText()}</div>
+      <div className="m-2">
+        <video width="512" height="512" ref={mediaElementRef} />
+      </div>
     </div>
   );
 }

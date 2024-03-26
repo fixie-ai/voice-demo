@@ -9,7 +9,7 @@ async function invoke(method: string, path: string, data: any) {
     },
     body: JSON.stringify(data),
   });
-  if (response.status !== 200) {
+  if (!response.ok) {
     console.error(response.status, "Server error", response);
     throw new Error("Server error");
   }
@@ -40,10 +40,14 @@ async function stopSession(session: SessionData) {
   return doPost(`/avatar/api/stop`, { session });
 }
 
+/**
+ * Abstract class for a receive-only PeerConnection.
+ * Signaling is handled by derived classes.
+ */
 export abstract class PeerConnectionClient extends EventTarget {
   private video: HTMLVideoElement;
   protected pc?: RTCPeerConnection;
-  private _backgroundColor = "#FFFFFF";
+  private _backgroundColor = "#00FF00";
   constructor(video: HTMLVideoElement) {
     super();
     this.video = video;
@@ -57,12 +61,12 @@ export abstract class PeerConnectionClient extends EventTarget {
   set backgroundColor(newColor: string) {
     this._backgroundColor = newColor;
   }
-  abstract connect(): void;
-  abstract generate(data: GenerateData): void;
+  abstract connect(): Promise<void>;
+  abstract generate(data: GenerateData): Promise<void>;
   close() {
     this.pc?.close();
   }
-  
+
   protected createPeerConnection(iceServers: RTCIceServer[]) {
     this.pc = new RTCPeerConnection({ iceServers });
     this.pc.onconnectionstatechange = () => {
@@ -78,12 +82,23 @@ export abstract class PeerConnectionClient extends EventTarget {
       }
     };
     this.pc.ontrack = (event) => {
-      console.log("Received track:", event.track);
+      console.log(
+        `Received ${event.track.kind} track ${event.track.id} for stream ${event.streams[0].id}`,
+      );
       if (event.track.kind === "video") {
         this.video.srcObject = event.streams[0];
         this.video.play().catch((err) => {
           console.error("Error auto-playing video: ", err);
         });
+      } else if (event.track.kind === "audio") {
+        // This works around an issue with the Azure avatars where the audio track is standalone.
+        const stream = this.video.srcObject as MediaStream | null;
+        if (stream && stream.getAudioTracks().indexOf(event.track) === -1) {
+          console.log(
+            "Received standalone audio track, adding to video stream.",
+          );
+          stream.addTrack(event.track);
+        }
       }
     };
     this.pc.ondatachannel = (event) => {
@@ -93,6 +108,9 @@ export abstract class PeerConnectionClient extends EventTarget {
   protected abstract handleICE(candidate: RTCIceCandidateInit): void;
 }
 
+/**
+ * PeerConnectionClient that uses our REST API for signaling.
+ */
 export class RestPeerConnectionClient extends PeerConnectionClient {
   private session: SessionData;
   constructor(video: HTMLVideoElement, provider: string, service?: string) {
@@ -105,7 +123,7 @@ export class RestPeerConnectionClient extends PeerConnectionClient {
       return;
     }
     const { session_id, stream_id, ice_servers, sdp } = await startSession(
-      this.session
+      this.session,
     );
     this.session.session_id = session_id;
     this.session.stream_id = stream_id;
