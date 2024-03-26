@@ -1,12 +1,9 @@
 export class Invoker {
   constructor(
-    private base_url?: string,
+    private base_url: string,
     private token?: string,
     private api_key?: string,
   ) {
-    if (!base_url) {
-      throw new Error("Missing base_url");
-    }
     if (!!token == !!api_key) {
       throw new Error("Must set either token or api_key");
     }

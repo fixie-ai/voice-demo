@@ -10,7 +10,7 @@ const PRESENTER_ID = "amy-Aq6OmGZnMt"; // Amy
 const DRIVER_ID = "hORBJB77ln"; // Amy-specifc driver
 
 const invoker = new Invoker(
-  process.env.DID_SERVER_URL,
+  "https://api.d-id.com",
   process.env.DID_API_KEY,
 );
 

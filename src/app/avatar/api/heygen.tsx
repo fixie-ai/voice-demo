@@ -3,7 +3,7 @@ import { ServiceHandler } from "./base";
 import { Invoker } from "./invoker";
 
 const invoker = new Invoker(
-  process.env.HEYGEN_SERVER_URL,
+  "https://api.heygen.com",
   undefined,
   process.env.HEYGEN_API_KEY,
 );
