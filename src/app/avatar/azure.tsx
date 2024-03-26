@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { PeerConnectionClient } from './pc';
+import React, { useState, useEffect, useRef } from "react";
+import { PeerConnectionClient } from "./pc";
 
 class AzureClient extends PeerConnectionClient {
   private socket: WebSocket;
   constructor(video: HTMLVideoElement) {
     super(video, "azure");
-    this.socket = new WebSocket("wss://westus2.voice.speech.microsoft.com/cognitiveservices/websocket/v1?enableTalkingAvatar=true&Ocp-Apim-Subscription-Key=3f3ee45ab52a452ca027ccd59d34b0da&X-ConnectionId=30F8A079847A4DE4AB7A15A6B17E9DAD");
+    this.socket = new WebSocket(
+      "wss://westus2.voice.speech.microsoft.com/cognitiveservices/websocket/v1?enableTalkingAvatar=true&Ocp-Apim-Subscription-Key=3f3ee45ab52a452ca027ccd59d34b0da&X-ConnectionId=30F8A079847A4DE4AB7A15A6B17E9DAD",
+    );
     this.socket.onopen = () => {
       console.log("Azure socket opened");
       this.sendConfig();
@@ -54,12 +56,13 @@ class AzureClient extends PeerConnectionClient {
             }
           }
         };*/
-    const msg = "Path: speech.config\r\nX-RequestId: F320D23CAFF7487F9CBD26222A6D5651\r\nX-Timestamp: 2024-03-25T04:33:00.554Z\r\nContent-Type: application/json\r\n\r\n" + 
-`{"context":{"system":{"name":"SpeechSDK","version":"1.36.0","build":"JavaScript","lang":"JavaScript"},"os":{"platform":"Browser/MacIntel","name":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36","version":"5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"},"synthesis":{"video":{"format":{"bitrate":2000000,"codec":"H264","crop":{"bottomRight":{"x":1920,"y":1080},"topLeft":{"x":0,"y":0}},"resolution":{"height":1080,"width":1920}},"protocol":{"name":"WebRTC","webrtcConfig":{"clientDescription":"","iceServers":[{"credential":"def","urls":["turn:relay.communication.microsoft.com:3478"],"username":"abc"}]}},"talkingAvatar":{"background":{"color":"#FFFFFFFF"},"character":"lisa","customized":false,"style":"casual-sitting"}}}}}`;
-    this.socket.send(msg);    
+    const msg =
+      "Path: speech.config\r\nX-RequestId: F320D23CAFF7487F9CBD26222A6D5651\r\nX-Timestamp: 2024-03-25T04:33:00.554Z\r\nContent-Type: application/json\r\n\r\n" +
+      `{"context":{"system":{"name":"SpeechSDK","version":"1.36.0","build":"JavaScript","lang":"JavaScript"},"os":{"platform":"Browser/MacIntel","name":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36","version":"5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"},"synthesis":{"video":{"format":{"bitrate":2000000,"codec":"H264","crop":{"bottomRight":{"x":1920,"y":1080},"topLeft":{"x":0,"y":0}},"resolution":{"height":1080,"width":1920}},"protocol":{"name":"WebRTC","webrtcConfig":{"clientDescription":"","iceServers":[{"credential":"def","urls":["turn:relay.communication.microsoft.com:3478"],"username":"abc"}]}},"talkingAvatar":{"background":{"color":"#FFFFFFFF"},"character":"lisa","customized":false,"style":"casual-sitting"}}}}}`;
+    this.socket.send(msg);
   }
 
- async sendContext() {
+  async sendContext() {
     /*const msg = {
       "synthesis":{
         "audio":{
@@ -70,46 +73,64 @@ class AzureClient extends PeerConnectionClient {
         },
         "language":{}
       }*/
-      const msg = "Path: synthesis.context\r\nX-RequestId: F320D23CAFF7487F9CBD26222A6D5651\r\nX-Timestamp: 2024-03-25T04:33:00.555Z\r\nContent-Type: application/json\r\n\r\n" + 
-`{"synthesis":{"audio":{"metadataOptions":{"bookmarkEnabled":false,"sessionEndEnabled":true,"visemeEnabled":false},"outputFormat":"raw-24khz-16bit-mono-pcm"},"language":{}}}`; 
+    const msg =
+      "Path: synthesis.context\r\nX-RequestId: F320D23CAFF7487F9CBD26222A6D5651\r\nX-Timestamp: 2024-03-25T04:33:00.555Z\r\nContent-Type: application/json\r\n\r\n" +
+      `{"synthesis":{"audio":{"metadataOptions":{"bookmarkEnabled":false,"sessionEndEnabled":true,"visemeEnabled":false},"outputFormat":"raw-24khz-16bit-mono-pcm"},"language":{}}}`;
     this.socket.send(msg);
   }
 
   async sendSsml(text: string) {
-const msg = "Path: ssml\r\nX-RequestId: F320D23CAFF7487F9CBD26222A6D5651\r\nX-Timestamp: 2024-03-25T04:33:00.555Z\r\nContent-Type: application/ssml+xml\r\n\r\n" +
-`<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xmlns:emo='http://www.w3.org/2009/10/emotionml' xml:lang='en-US'><voice name='en-US-JennyMultilingualV2Neural'>${text}</voice></speak>`;    
+    const msg =
+      "Path: ssml\r\nX-RequestId: F320D23CAFF7487F9CBD26222A6D5651\r\nX-Timestamp: 2024-03-25T04:33:00.555Z\r\nContent-Type: application/ssml+xml\r\n\r\n" +
+      `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xmlns:emo='http://www.w3.org/2009/10/emotionml' xml:lang='en-US'><voice name='en-US-JennyMultilingualV2Neural'>${text}</voice></speak>`;
     this.socket.send(msg);
   }
 }
 
-
-export function AzurePage({text}: {text: string}) {
+export function AzurePage({ text }: { text: string }) {
   const clientRef = useRef<AzureClient | null>(null);
   const mediaElementRef = useRef<HTMLVideoElement>(null);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     // Cleanup peer connection on component unmount
-    return () => { clientRef.current?.close(); };
+    return () => {
+      clientRef.current?.close();
+    };
   }, []);
 
   const connect = async () => {
-    clientRef.current = new AzureClient(mediaElementRef.current!);  
-    clientRef.current.addEventListener('connected', (evt: CustomEventInit<boolean>) => setConnected(!!evt.detail));
+    clientRef.current = new AzureClient(mediaElementRef.current!);
+    clientRef.current.addEventListener(
+      "connected",
+      (evt: CustomEventInit<boolean>) => setConnected(!!evt.detail),
+    );
     await clientRef.current.connect();
   };
-  const generate = async () => clientRef.current?.generate({text}); 
+  const generate = async () => clientRef.current?.generate({ text });
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-row gap-2">
-        <button onClick={connect} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Connect</button>
-        <button onClick={generate} className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon">Speak</button>
+        <button
+          onClick={connect}
+          className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon"
+        >
+          Connect
+        </button>
+        <button
+          onClick={generate}
+          className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon"
+        >
+          Speak
+        </button>
       </div>
       <div className="mt-6 w-[400px] h-[400px]">
-        {connected && <div>Connection ready, press speak to render the avatar. </div>}
+        {connected && (
+          <div>Connection ready, press speak to render the avatar. </div>
+        )}
         <video ref={mediaElementRef} id="mediaElement" />
       </div>
     </div>
   );
-};
+}
