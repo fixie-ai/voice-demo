@@ -1,5 +1,5 @@
 import { SessionData, SessionResponse, GenerateData } from "../types";
-import { ServiceHandler } from "./base";
+import { HttpException, ServiceHandler } from "./base";
 import { Invoker } from "./invoker";
 
 const invoker = new Invoker(
@@ -16,8 +16,7 @@ function buildPath(suffix?: string): string {
 export class HeyGenHandler implements ServiceHandler {
   async start(): Promise<SessionResponse> {
     const body = { quality: "high" }; //, voice: { voice_id: DEFAULT_TTS_VOICE } };
-    const resp = await invoker.post(buildPath("new"), body);
-    const outBody = await resp.json();
+    const outBody = await invoker.post(buildPath("new"), body);
     const data = outBody.data;
     return {
       session_id: data.session_id,
@@ -45,6 +44,19 @@ export class HeyGenHandler implements ServiceHandler {
   }
   async generate(session: SessionData, data: GenerateData): Promise<void> {
     const body = { session_id: session.session_id, text: data.text?.text };
-    await invoker.post(buildPath("task"), body);
+    const MAX_RETRIES = 3;
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        await invoker.post(buildPath("task"), body);
+        return;
+      } catch (e) {
+        if (e instanceof HttpException && e.response.status === 400) {
+          // Sometimes the server will be slow to realize we're connected.
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        } else {
+          throw e;
+        }
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { ServiceHandler } from "./base";
+import { HttpException, ServiceHandler } from "./base";
 import { DIDClipsHandler, DIDTalksHandler } from "./did";
 import { HeyGenHandler } from "./heygen";
 
@@ -20,24 +20,32 @@ export async function handlePost(
   }
   const handler = SERVICE_MAP[key];
   let response = {};
-  switch (method) {
-    case "start":
-      response = await handler.start();
-      break;
-    case "stop":
-      await handler.stop(session);
-      break;
-    case "sdp":
-      await handler.sdp(session, body.sdp);
-      break;
-    case "ice":
-      await handler.ice(session, body.candidate);
-      break;
-    case "generate":
-      await handler.generate(session, body.data);
-      break;
-    default:
-      return new Response("Invalid method", { status: 400 });
+  try {
+    switch (method) {
+      case "start":
+        response = await handler.start();
+        break;
+      case "stop":
+        await handler.stop(session);
+        break;
+      case "sdp":
+        await handler.sdp(session, body.sdp);
+        break;
+      case "ice":
+        await handler.ice(session, body.candidate);
+        break;
+      case "generate":
+        await handler.generate(session, body.data);
+        break;
+      default:
+        return new Response("Invalid method", { status: 400 });
+    }
+  } catch (e) {
+    if (e instanceof HttpException) {
+      return new Response(e.response.body, { status: e.response.status });
+    }
+    console.error(e);
+    return new Response("Server error", { status: 500 });
   }
   return new Response(JSON.stringify(response));
 }

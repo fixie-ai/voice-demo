@@ -9,10 +9,7 @@ const SOURCE_URL = "https://i.imgur.com/ltxHLqK.jpg"; // Dr. Donut worker
 const PRESENTER_ID = "amy-Aq6OmGZnMt"; // Amy
 const DRIVER_ID = "hORBJB77ln"; // Amy-specifc driver
 
-const invoker = new Invoker(
-  "https://api.d-id.com",
-  process.env.DID_API_KEY,
-);
+const invoker = new Invoker("https://api.d-id.com", process.env.DID_API_KEY);
 
 function buildPath(
   prefix: string,
@@ -39,8 +36,7 @@ export class DIDHandler implements ServiceHandler {
     } else {
       body = { presenter_id: PRESENTER_ID, driver_id: DRIVER_ID };
     }
-    const resp = await invoker.post(buildPath(this.service), body);
-    const outBody = await resp.json();
+    const outBody = await invoker.post(buildPath(this.service), body);
     return {
       session_id: outBody.session_id,
       stream_id: outBody.id,
