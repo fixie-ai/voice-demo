@@ -42,6 +42,7 @@ export class AzureClient extends PeerConnectionClient {
     await this.synth.startAvatarAsync(this.pc!);
   }
   async generate(data: GenerateData) {
+    this.setGenerateStart();
     this.synth?.speakTextAsync(data.text!.text);
   }
   close() {
