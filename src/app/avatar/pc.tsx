@@ -1,44 +1,5 @@
 "use client";
-import { SessionData, SessionResponse, GenerateData } from "./types";
-
-async function invoke(method: string, path: string, data: any) {
-  const response = await fetch(path, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    console.error(response.status, "Server error", response);
-    throw new Error("Server error");
-  }
-  return await response.json();
-}
-
-async function doPost(path: string, data: any) {
-  return invoke("POST", path, data);
-}
-
-async function startSession(session: SessionData): Promise<SessionResponse> {
-  return doPost(`/avatar/api/start`, { session });
-}
-
-async function handleSDP(session: SessionData, sdp: RTCSessionDescriptionInit) {
-  return doPost(`/avatar/api/sdp`, { session, sdp });
-}
-
-async function handleICE(session: SessionData, candidate: RTCIceCandidateInit) {
-  return doPost(`/avatar/api/ice`, { session, candidate });
-}
-
-async function generate(session: SessionData, data: GenerateData) {
-  return doPost(`/avatar/api/generate`, { session, data });
-}
-
-async function stopSession(session: SessionData) {
-  return doPost(`/avatar/api/stop`, { session });
-}
+import { GenerateData } from "./types";
 
 /**
  * Abstract class for a receive-only PeerConnection.
@@ -78,7 +39,7 @@ export abstract class PeerConnectionClient extends EventTarget {
     this.pc.onicecandidate = ({ candidate }) => {
       if (candidate) {
         console.log("Gathered ICE candidate:", candidate);
-        this.handleICE(candidate);
+        this.sendICE(candidate);
       }
     };
     this.pc.ontrack = (event) => {
@@ -105,33 +66,19 @@ export abstract class PeerConnectionClient extends EventTarget {
       console.log("Received data channel:", event);
     };
   }
-  protected abstract handleICE(candidate: RTCIceCandidateInit): void;
+  protected async sendICE(candidate: RTCIceCandidateInit) {}
 }
 
-/**
- * PeerConnectionClient that uses our REST API for signaling.
- */
-export class RestPeerConnectionClient extends PeerConnectionClient {
-  private session: SessionData;
-  constructor(video: HTMLVideoElement, provider: string, service?: string) {
-    super(video);
-    this.session = { provider, service };
-  }
+export abstract class RestPeerConnectionClient extends PeerConnectionClient {
   async connect() {
     if (this.pc) {
       console.error("Peer connection already exists");
       return;
     }
-    const { session_id, stream_id, ice_servers, sdp } = await startSession(
-      this.session,
-    );
-    this.session.session_id = session_id;
-    this.session.stream_id = stream_id;
-    this.createPeerConnection(ice_servers);
-    await this.pc!.setRemoteDescription(sdp);
+    await this.startSession();
     const answer = await this.pc!.createAnswer();
     await this.pc!.setLocalDescription(answer);
-    await handleSDP(this.session!, answer);
+    await this.sendSDP(answer);
     console.log("Peer connection negotiation complete");
   }
   async generate(data: GenerateData) {
@@ -139,10 +86,7 @@ export class RestPeerConnectionClient extends PeerConnectionClient {
       console.error("Peer connection does not exist");
       return;
     }
-    if (!data.background_color) {
-      data.background_color = this.backgroundColor;
-    }
-    await generate(this.session!, data);
+    await this.sendGenerate(data);
   }
   async close() {
     if (!this.pc || this.pc.connectionState === "closed") {
@@ -150,44 +94,15 @@ export class RestPeerConnectionClient extends PeerConnectionClient {
     }
     // If stopSession fails, just eat the error.
     try {
-      await stopSession(this.session);
+      await this.stopSession();
     } catch (err) {
       console.log(`Error stopping session: ${err}`);
     }
     super.close();
   }
-  protected handleICE(candidate: RTCIceCandidateInit) {
-    handleICE(this.session, candidate);
-  }
+  protected abstract startSession(): Promise<void>;
+  protected abstract stopSession(): Promise<void>;
+  protected abstract sendSDP(sdp: RTCSessionDescriptionInit): Promise<void>;
+  protected abstract sendICE(candidate: RTCIceCandidateInit): Promise<void>;
+  protected abstract sendGenerate(data: GenerateData): Promise<void>;
 }
-
-/*
-let lastBytesReceived = 0;
-let videoIsPlaying = false; 
-peerConnection.ontrack = (event) => {
-
-    setInterval(async () => {
-      const stats = await peerConnection.getStats(event.track);
-    
-      stats.forEach((report) => { 
-        if (report.type === 'inbound-rtp' && report.mediaType === 'video') {
-          
-          const hasNewData = report.bytesReceived > lastBytesReceived; 
-          const videoStatusChanged = videoIsPlaying !== report.bytesReceived > lastBytesReceived;
-          
-          if (hasNewData && mediaElementRef.current) {
-            if (videoStatusChanged) {
-              videoIsPlaying = report.bytesReceived > lastBytesReceived;
-              console.log('Received track:', event.track);
-              mediaElementRef.current.srcObject = event.streams[0];
-              mediaElementRef.current.play().catch(err => {
-                console.error("Error auto-playing video: ", err);
-              });
-            }
-           
-          }
-          lastBytesReceived = report.bytesReceived;
-        }
-      });
-    }, 500); 
-  };*/
