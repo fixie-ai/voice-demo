@@ -1,5 +1,6 @@
 "use client";
 import { GenerateData } from "./types";
+import { ChromaKeyer } from "./chroma_key";
 
 /**
  * Abstract class for a receive-only PeerConnection.
@@ -8,7 +9,11 @@ import { GenerateData } from "./types";
 export abstract class PeerConnectionClient extends EventTarget {
   private video: HTMLVideoElement;
   protected pc?: RTCPeerConnection;
-  private _backgroundColor = "#00FF00";
+  protected dc?: RTCDataChannel;
+  private lastGenerateStart?: number;
+  private audioTrackTimer?: NodeJS.Timeout;
+  private chromaKeyer?: ChromaKeyer;
+  private _backgroundColor = "#007F00";
   constructor(video: HTMLVideoElement) {
     super();
     this.video = video;
@@ -25,6 +30,9 @@ export abstract class PeerConnectionClient extends EventTarget {
   abstract connect(): Promise<void>;
   abstract generate(data: GenerateData): Promise<void>;
   close() {
+    if (this.audioTrackTimer) {
+      clearInterval(this.audioTrackTimer);
+    }
     this.pc?.close();
   }
 
@@ -38,7 +46,7 @@ export abstract class PeerConnectionClient extends EventTarget {
     };
     this.pc.onicecandidate = ({ candidate }) => {
       if (candidate) {
-        console.log("Gathered ICE candidate:", candidate);
+        console.debug("Gathered ICE candidate:", candidate);
         this.sendICE(candidate);
       }
     };
@@ -47,7 +55,8 @@ export abstract class PeerConnectionClient extends EventTarget {
         `Received ${event.track.kind} track ${event.track.id} for stream ${event.streams[0].id}`,
       );
       if (event.track.kind === "video") {
-        this.video.srcObject = event.streams[0];
+        this.chromaKeyer = new ChromaKeyer(event.streams[0]);
+        this.video.srcObject = this.chromaKeyer.stream;
         this.video.play().catch((err) => {
           console.error("Error auto-playing video: ", err);
         });
@@ -60,13 +69,48 @@ export abstract class PeerConnectionClient extends EventTarget {
           );
           stream.addTrack(event.track);
         }
+        this.audioTrackTimer = setInterval(async () => {
+          const stats = await this.pc?.getStats(event.track);
+          this.processAudioStats(stats!);
+        }, 50);
       }
     };
     this.pc.ondatachannel = (event) => {
       console.log("Received data channel:", event);
+      this.dc = event.channel;
+      this.dc.onmessage = (ev) => {
+        console.log("Received dc message:", ev.data);
+      };
     };
   }
-  protected async sendICE(candidate: RTCIceCandidateInit) {}
+  protected sendICE(candidate: RTCIceCandidateInit) {}
+  protected setGenerateStart() {
+    this.lastGenerateStart = performance.now();
+  }
+  private processAudioStats(stats: RTCStatsReport) {
+    // Calculate the time until the first non-silent audio is received.
+    if (!this.lastGenerateStart) {
+      return;
+    }
+    let audioLevel = 0;
+    for (const [_, report] of stats.entries()) {
+      if (report.type === "inbound-rtp" && report.kind === "audio") {
+        audioLevel = report.audioLevel;
+        break;
+      }
+    }
+    if (!audioLevel || audioLevel < 0.01) {
+      return;
+    }
+
+    const elapsed = performance.now() - this.lastGenerateStart;
+    console.log(
+      `Audio received: ${audioLevel.toFixed(3)}, elapsed: ${elapsed.toFixed(
+        0,
+      )}ms`,
+    );
+    this.lastGenerateStart = undefined;
+  }
 }
 
 export abstract class RestPeerConnectionClient extends PeerConnectionClient {
@@ -86,7 +130,10 @@ export abstract class RestPeerConnectionClient extends PeerConnectionClient {
       console.error("Peer connection does not exist");
       return;
     }
+    console.log("Requesting generation with data:", data);
+    super.setGenerateStart();
     await this.sendGenerate(data);
+    console.log("Generation request complete");
   }
   async close() {
     if (!this.pc || this.pc.connectionState === "closed") {

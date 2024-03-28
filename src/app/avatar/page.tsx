@@ -123,10 +123,26 @@ function AvatarHome() {
         ></textarea>
       </div>
       <div className="m-2 flex flex-row">{createEnumButtons(Provider)}</div>
-      <div className="ml-2 mt-1 text-sm">{createConnectionText()}</div>
-      <div className="m-2">
-        <video width="512" height="512" ref={mediaElementRef} />
+      <div className="m-2 relative">
+        <video
+          className="top-0 left-0"
+          width="910"
+          height="512"
+          playsInline
+          muted
+          autoPlay
+          loop
+          src="https://www.shutterstock.com/shutterstock/videos/27478456/preview/stock-footage-closed-white-window-overlooking-green-garden.webm"
+        />
+        <video
+          className="absolute top-0 left-0"
+          width="512"
+          height="512"
+          playsInline
+          ref={mediaElementRef}
+        />
       </div>
+      <div className="ml-2 mt-1 text-sm">{createConnectionText()}</div>
     </div>
   );
 }
