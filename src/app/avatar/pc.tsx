@@ -13,7 +13,7 @@ export abstract class PeerConnectionClient extends EventTarget {
   private lastGenerateStart?: number;
   private audioTrackTimer?: NodeJS.Timeout;
   private chromaKeyer?: ChromaKeyer;
-  private _backgroundColor = "#00FF00";
+  private _backgroundColor = "#007F00";
   constructor(video: HTMLVideoElement) {
     super();
     this.video = video;
