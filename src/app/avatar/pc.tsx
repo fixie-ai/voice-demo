@@ -86,7 +86,7 @@ export abstract class PeerConnectionClient extends EventTarget {
   protected abstract sendICE(candidate: RTCIceCandidateInit): void;
   protected setGenerateStart() {
     this.lastGenerateStart = performance.now();
-  } 
+  }
   private processAudioStats(stats: RTCStatsReport) {
     // Calculate the time until the first non-silent audio is received.
     if (!this.lastGenerateStart) {

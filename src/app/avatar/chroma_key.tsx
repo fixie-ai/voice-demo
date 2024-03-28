@@ -18,7 +18,7 @@ export class ChromaKeyer {
     // @ts-ignore
     const processor = new MediaStreamTrackProcessor(inTrack);
     // @ts-ignore
-    const generator = new MediaStreamTrackGenerator({ kind: "video" });    
+    const generator = new MediaStreamTrackGenerator({ kind: "video" });
     const transformer = new TransformStream({
       transform: this.transform.bind(this),
     });
@@ -33,7 +33,7 @@ export class ChromaKeyer {
   private async transform(
     inFrame: VideoFrame,
     controller: TransformStreamDefaultController,
-  ) {    
+  ) {
     controller.enqueue(await this.process(inFrame));
     inFrame.close();
   }
