@@ -83,7 +83,7 @@ export abstract class PeerConnectionClient extends EventTarget {
       };
     };
   }
-  protected abstract sendICE(candidate: RTCIceCandidateInit): void;
+  protected sendICE(candidate: RTCIceCandidateInit) {}
   protected setGenerateStart() {
     this.lastGenerateStart = performance.now();
   }
