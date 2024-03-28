@@ -33,6 +33,7 @@
     "fixie-web": "1.0.9",
     "livekit-client": "^1.14.4",
     "lodash": "^4.17.21",
+    "microsoft-cognitiveservices-speech-sdk": "^1.36.0",
     "mpg123-decoder": "^0.4.9",
     "next": "^14.0.1",
     "playht": "^0.9.6",
