@@ -10,9 +10,9 @@ import { HeyGenClient } from "./heygen";
 const DID_SOURCE_URL = "https://i.imgur.com/ltxHLqK.jpg"; // Dr. Donut worker
 const DID_PRESENTER_ID1 = "amy-Aq6OmGZnMt"; // Amy
 const DID_DRIVER_ID1 = "hORBJB77ln"; // Amy-specifc driver
-const DID_PRESENTER_ID2 = 'rian-lZC6MmWfC1' // Rian
-const DID_DRIVER_ID2 = 'mXra4jY38i' // Rian-specific driver
-const DID_VOICE_ID2 = 'en-US-TonyNeural'
+const DID_PRESENTER_ID2 = "rian-lZC6MmWfC1"; // Rian
+const DID_DRIVER_ID2 = "mXra4jY38i"; // Rian-specific driver
+const DID_VOICE_ID2 = "en-US-TonyNeural";
 
 const DEFAULT_TEXT =
   "Well, basically I have intuition. I mean, the DNA of who " +
@@ -66,9 +66,18 @@ function AvatarHome() {
       case Provider.DIDTalks:
         return new DidTalksClient(mediaElementRef.current!, DID_SOURCE_URL);
       case Provider.DIDClips1:
-        return new DidClipsClient(mediaElementRef.current!, DID_PRESENTER_ID1, DID_DRIVER_ID1);
+        return new DidClipsClient(
+          mediaElementRef.current!,
+          DID_PRESENTER_ID1,
+          DID_DRIVER_ID1,
+        );
       case Provider.DIDClips2:
-        return new DidClipsClient(mediaElementRef.current!, DID_PRESENTER_ID2, DID_DRIVER_ID2, DID_VOICE_ID2);
+        return new DidClipsClient(
+          mediaElementRef.current!,
+          DID_PRESENTER_ID2,
+          DID_DRIVER_ID2,
+          DID_VOICE_ID2,
+        );
       case Provider.HeyGen:
         return new HeyGenClient(mediaElementRef.current!);
       case Provider.Microsoft:
