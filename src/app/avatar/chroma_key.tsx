@@ -18,7 +18,7 @@ export class ChromaKeyer {
     // @ts-ignore
     const processor = new MediaStreamTrackProcessor(inTrack);
     // @ts-ignore
-    const generator = new MediaStreamTrackGenerator({ kind: "video" });
+    const generator = new MediaStreamTrackGenerator({ kind: "video" });    
     const transformer = new TransformStream({
       transform: this.transform.bind(this),
     });
@@ -33,7 +33,7 @@ export class ChromaKeyer {
   private async transform(
     inFrame: VideoFrame,
     controller: TransformStreamDefaultController,
-  ) {
+  ) {    
     controller.enqueue(await this.process(inFrame));
     inFrame.close();
   }
@@ -57,13 +57,21 @@ export class ChromaKeyer {
     const imageData = this.ctx!.getImageData(0, 0, width, height);
     const data = imageData.data;
 
-    // Tweak the green bytes.
-    for (let i = 0; i < data.length; i += 4) {
-      let r = data[i];
-      let g = data[i + 1];
-      let b = data[i + 2];
-      if (g - (r + b) > THRESHOLD) {
+    if (data[0] === 0 && data[1] === 0 && data[2] === 0) {
+      // The first pixel is black, so assume the whole frame is black.
+      // Return an entirely transparent frame.
+      for (let i = 0; i < data.length; i += 4) {
         data[i + 3] = 0; // Set alpha to 0
+      }
+    } else {
+      // Just tweak the green bytes.
+      for (let i = 0; i < data.length; i += 4) {
+        let r = data[i];
+        let g = data[i + 1];
+        let b = data[i + 2];
+        if (g - (r + b) > THRESHOLD) {
+          data[i + 3] = 0; // Set alpha to 0
+        }
       }
     }
 
