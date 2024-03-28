@@ -1,5 +1,5 @@
 const TTS_REGION = "westus2";
-const TTS_API_KEY = process.env.AZURE_WESTUS2_TTS_API_KEY || "";
+const TTS_API_KEY = process.env.AZURE_WESTUS2_TTS_API_KEY;
 
 export async function GET(req: Request): Promise<Response> {
   const tokenUrl = `https://${TTS_REGION}.api.cognitive.microsoft.com/sts/v1.0/issueToken`;
@@ -16,6 +16,9 @@ export async function GET(req: Request): Promise<Response> {
 }
 
 async function invoke(method: string, url: string) {
+  if (!TTS_API_KEY) {
+    throw new Error("TTS_API_KEY is not set");
+  }
   const response = await fetch(url, {
     method,
     headers: { "Ocp-Apim-Subscription-Key": TTS_API_KEY },

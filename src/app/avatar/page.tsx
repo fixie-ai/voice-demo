@@ -128,6 +128,7 @@ function AvatarHome() {
           className="top-0 left-0"
           width="910"
           height="512"
+          playsInline
           muted
           autoPlay
           loop
@@ -137,6 +138,7 @@ function AvatarHome() {
           className="absolute top-0 left-0"
           width="512"
           height="512"
+          playsInline
           ref={mediaElementRef}
         />
       </div>
