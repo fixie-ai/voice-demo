@@ -1,5 +1,5 @@
 import { GenerateData } from "./types";
-import { doPost } from "./invoke";
+import { invoke, doPost } from "./invoke";
 import { RestPeerConnectionClient } from "./pc";
 
 //const DEFAULT_TTS_VOICE = "en-US-JennyNeural";
@@ -27,10 +27,24 @@ export class HeyGenClient extends RestPeerConnectionClient {
   }
   protected async sendGenerate(data: GenerateData) {
     const body = { session_id: this.sessionId, text: data.text?.text };
-    await this.post("task", body);
+    while (true) {
+      const resp = await invoke("POST", this.buildPath("task"), body);
+      if (!resp.ok) {
+        const { code, message } = await resp.json();
+        console.warn("Failed to generate:", message);
+        if (code === 10002) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          console.log("Retrying generation...");
+          continue;
+        }
+      }
+      break;
+    }
   }
   private post(method: string, data: any) {
-    const path = "/avatar/api/heygen/v1/streaming." + method;
-    return doPost(path, data);
+    return doPost(this.buildPath(method), data);
+  }
+  private buildPath(method: string) {
+    return `/avatar/api/heygen/v1/streaming.${method}`;
   }
 }

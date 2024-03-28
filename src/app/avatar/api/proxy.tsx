@@ -15,9 +15,13 @@ export class Proxy {
     this.token = token;
     this.apiKey = apiKey;
   }
-  async proxy(req: Request, path: string[]): Promise<Response> {    
+  async proxy(req: Request, path: string[]): Promise<Response> {
     const url = `${this.baseUrl}/${path.join("/")}`;
-    const opts = { method: req.method, headers: new Headers(), body: await req.text() };    
+    const opts = {
+      method: req.method,
+      headers: new Headers(),
+      body: await req.text(),
+    };
     const contentType = req.headers.get("content-type");
     if (contentType) {
       opts.headers!.set("content-type", contentType);
@@ -27,19 +31,16 @@ export class Proxy {
     }
     if (this.apiKey) {
       opts.headers!.set("x-api-key", this.apiKey);
-    }    
-    //if (req.method !== "GET" && req.method !== "HEAD" && req.body) {
-    //  opts.body = await req.text();
-    //  }
-
+    }
     try {
-      console.log(url, opts);
       const apiResp = await fetch(url, opts);
       const text = await apiResp.text();
       return new Response(text, { status: apiResp.status });
     } catch (e) {
       console.error("Proxy request failed:", e);
-      return new Response(JSON.stringify({ error: "Proxy request failed" }), { status: 500 });
+      return new Response(JSON.stringify({ error: "Proxy request failed" }), {
+        status: 500,
+      });
     }
   }
 }

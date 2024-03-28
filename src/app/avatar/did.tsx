@@ -1,6 +1,6 @@
 import { GenerateData } from "./types";
 import { RestPeerConnectionClient } from "./pc";
-import { invoke } from "./invoke";
+import { doDelete, doPost } from "./invoke";
 
 const DEFAULT_TTS_PROVIDER = "microsoft";
 const DEFAULT_TTS_VOICE = "en-US-JennyNeural";
@@ -47,7 +47,7 @@ abstract class DidClient extends RestPeerConnectionClient {
       input: data.text?.text,
       provider: {
         type: DEFAULT_TTS_PROVIDER,
-        voice_id: DEFAULT_TTS_VOICE,
+        voice_id: this.voiceId,
       },
     };
     //const script = { type: "audio", audio_url: 'https://d-id-public-bucket.s3.us-west-2.amazonaws.com/webrtc.mp3'};
@@ -60,10 +60,10 @@ abstract class DidClient extends RestPeerConnectionClient {
     await this.post("", body);
   }
   private post(method: string, data: any) {
-    return invoke("POST", this.buildPath(method), data);
+    return doPost(this.buildPath(method), data);
   }
   private delete(method: string, data: any) {
-    return invoke("DELETE", this.buildPath(method), data);
+    return doDelete(this.buildPath(method), data);
   }
   private buildPath(method: string) {
     let path = `/avatar/api/did/${this.service}/streams`;
@@ -78,7 +78,11 @@ abstract class DidClient extends RestPeerConnectionClient {
 }
 
 export class DidTalksClient extends DidClient {
-  constructor(mediaElement: HTMLVideoElement, private sourceUrl: string, voiceId?: string) {
+  constructor(
+    mediaElement: HTMLVideoElement,
+    private sourceUrl: string,
+    voiceId?: string,
+  ) {
     super(mediaElement, "talks", voiceId);
   }
   protected buildStartRequest() {
@@ -87,7 +91,12 @@ export class DidTalksClient extends DidClient {
 }
 
 export class DidClipsClient extends DidClient {
-  constructor(mediaElement: HTMLVideoElement, private presenterId: string, private driverId: string, voiceId?: string) {
+  constructor(
+    mediaElement: HTMLVideoElement,
+    private presenterId: string,
+    private driverId: string,
+    voiceId?: string,
+  ) {
     super(mediaElement, "clips", voiceId);
   }
   protected buildStartRequest() {

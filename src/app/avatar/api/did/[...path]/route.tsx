@@ -8,13 +8,15 @@ const proxy = new Proxy({
 });
 
 export async function DELETE(
-  req: Request, { params }: { params: { path: string[] } 
-}) {  
+  req: Request,
+  { params }: { params: { path: string[] } },
+) {
   return proxy.proxy(req, params.path);
 }
 
 export async function POST(
-  req: Request, { params }: { params: { path: string[] } 
-}) {  
+  req: Request,
+  { params }: { params: { path: string[] } },
+) {
   return proxy.proxy(req, params.path);
 }
