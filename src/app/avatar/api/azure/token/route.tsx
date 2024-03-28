@@ -2,12 +2,6 @@ const TTS_REGION = "westus2";
 const TTS_API_KEY = process.env.AZURE_WESTUS2_TTS_API_KEY || "";
 
 export async function GET(req: Request): Promise<Response> {
-  const url = new URL(req.url);
-  const provider = url.searchParams.get("provider");
-  if (provider != "azure") {
-    return new Response("Invalid provider", { status: 400 });
-  }
-
   const tokenUrl = `https://${TTS_REGION}.api.cognitive.microsoft.com/sts/v1.0/issueToken`;
   const iceUrl = `https://${TTS_REGION}.tts.speech.microsoft.com/cognitiveservices/avatar/relay/token/v1`;
   const tokenPromise = await invoke("POST", tokenUrl);
@@ -28,7 +22,7 @@ async function invoke(method: string, url: string) {
   });
   const responseData = await response.text();
   if (!response.ok) {
-    console.error(response.status, "Server error", responseData);
+    console.error(response.status, response.statusText);
     throw new Error("Server error");
   }
   return responseData;

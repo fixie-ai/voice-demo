@@ -2,8 +2,17 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import "../globals.css";
 import { useSearchParams } from "next/navigation";
-import { PeerConnectionClient, RestPeerConnectionClient } from "./pc";
+import { PeerConnectionClient } from "./pc";
 import { AzureClient } from "./azure";
+import { DidClipsClient, DidTalksClient } from "./did";
+import { HeyGenClient } from "./heygen";
+
+const DID_SOURCE_URL = "https://i.imgur.com/ltxHLqK.jpg"; // Dr. Donut worker
+const DID_PRESENTER_ID1 = "amy-Aq6OmGZnMt"; // Amy
+const DID_DRIVER_ID1 = "hORBJB77ln"; // Amy-specifc driver
+const DID_PRESENTER_ID2 = 'rian-lZC6MmWfC1' // Rian
+const DID_DRIVER_ID2 = 'mXra4jY38i' // Rian-specific driver
+const DID_VOICE_ID2 = 'en-US-TonyNeural'
 
 const DEFAULT_TEXT =
   "Well, basically I have intuition. I mean, the DNA of who " +
@@ -13,28 +22,11 @@ const DEFAULT_TEXT =
 
 enum Provider {
   DIDTalks = "D-ID Talks",
-  DIDClips = "D-ID Clips",
+  DIDClips1 = "D-ID Clips 1",
+  DIDClips2 = "D-ID Clips 2",
   HeyGen = "HeyGen",
   Microsoft = "Microsoft",
   Yepic = "Yepic",
-}
-
-class DidTalksClient extends RestPeerConnectionClient {
-  constructor(mediaElement: HTMLVideoElement) {
-    super(mediaElement, "did", "talks");
-  }
-}
-
-class DidClipsClient extends RestPeerConnectionClient {
-  constructor(mediaElement: HTMLVideoElement) {
-    super(mediaElement, "did", "clips");
-  }
-}
-
-class HeyGenClient extends RestPeerConnectionClient {
-  constructor(mediaElement: HTMLVideoElement) {
-    super(mediaElement, "heygen");
-  }
 }
 
 function AvatarHome() {
@@ -72,9 +64,11 @@ function AvatarHome() {
   const createClient = (provider: Provider) => {
     switch (provider) {
       case Provider.DIDTalks:
-        return new DidTalksClient(mediaElementRef.current!);
-      case Provider.DIDClips:
-        return new DidClipsClient(mediaElementRef.current!);
+        return new DidTalksClient(mediaElementRef.current!, DID_SOURCE_URL);
+      case Provider.DIDClips1:
+        return new DidClipsClient(mediaElementRef.current!, DID_PRESENTER_ID1, DID_DRIVER_ID1);
+      case Provider.DIDClips2:
+        return new DidClipsClient(mediaElementRef.current!, DID_PRESENTER_ID2, DID_DRIVER_ID2, DID_VOICE_ID2);
       case Provider.HeyGen:
         return new HeyGenClient(mediaElementRef.current!);
       case Provider.Microsoft:

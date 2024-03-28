@@ -49,11 +49,8 @@ export class AzureClient extends PeerConnectionClient {
     this.synth?.close();
     super.close();
   }
-  protected handleICE(event: RTCIceCandidateInit) {
-    // Do nothing, like any modern RTC service.
-  }
   private async fetchToken() {
-    const url = "/avatar/api/token?provider=azure";
+    const url = "/avatar/api/azure/token";
     const resp = await fetch(url);
     if (!resp.ok) {
       console.error("Failed to get token", resp);
