@@ -21,7 +21,7 @@ export async function doPost(path: string, data: any) {
 }
 
 export async function doDelete(path: string, data: any) {
-  const response = await invoke("POST", path, data);
+  const response = await invoke("DELETE", path, data);
   throwIfNotOk(response);
   return await response.json();
 }

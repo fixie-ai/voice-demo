@@ -8,11 +8,6 @@ import { DidClipsClient, DidTalksClient } from "./did";
 import { HeyGenClient } from "./heygen";
 
 const DID_SOURCE_URL = "https://i.imgur.com/ltxHLqK.jpg"; // Dr. Donut worker
-const DID_PRESENTER_ID1 = "amy-Aq6OmGZnMt"; // Amy
-const DID_DRIVER_ID1 = "hORBJB77ln"; // Amy-specifc driver
-const DID_PRESENTER_ID2 = "rian-lZC6MmWfC1"; // Rian
-const DID_DRIVER_ID2 = "mXra4jY38i"; // Rian-specific driver
-const DID_VOICE_ID2 = "en-US-TonyNeural";
 
 const DEFAULT_TEXT =
   "Well, basically I have intuition. I mean, the DNA of who " +
@@ -22,12 +17,78 @@ const DEFAULT_TEXT =
 
 enum Provider {
   DIDTalks = "D-ID Talks",
-  DIDClips1 = "D-ID Clips 1",
-  DIDClips2 = "D-ID Clips 2",
+  DIDClips = "D-ID Clips",
   HeyGen = "HeyGen",
   Microsoft = "Microsoft",
   Yepic = "Yepic",
 }
+
+interface AvatarConfig {
+  avatarId: string;
+  voiceId?: string;
+}
+
+const AVATAR_MAP: Record<Provider, AvatarConfig[]> = {
+  [Provider.DIDTalks]: [{ avatarId: DID_SOURCE_URL }],
+  [Provider.DIDClips]: [
+    { avatarId: "rian-lZC6MmWfC1/mXra4jY38i", voiceId: "en-US-GuyNeural" },
+    { avatarId: "amy-Aq6OmGZnMt/hORBJB77ln" },    
+  ],
+  [Provider.HeyGen]: [
+    //{avatarId: "default"},
+    { avatarId: "Angela-inblackskirt-20220820" },
+    { avatarId: "Tyler-incasualsuit-20220721", voiceId: "en-US-TonyNeural" },
+    { avatarId: "Anna_public_3_20240108" },
+    { avatarId: "Kayla-incasualsuit-20220818" },
+    { avatarId: "Kristin_public_2_20240108" },
+  ],
+  [Provider.Microsoft]: [{ avatarId: "lisa" }],
+  [Provider.Yepic]: [{ avatarId: "default" }],
+};
+
+interface AvatarProviderProps {
+  type: Provider;
+  configs: AvatarConfig[];
+  generate: (provider: Provider, avatarId: string) => void;
+}
+
+const AvatarProvider: React.FC<AvatarProviderProps> = ({
+  type,
+  configs,
+  generate,
+}: AvatarProviderProps) => {
+  const [selectedId, setSelectedId] = useState(configs[0].avatarId);
+  const handleChange = (event: any) => {
+    setSelectedId(event.target.value);
+  };
+  const idToName = (id: string) => {
+    const match = id.match(/^[A-Za-z]+/); // Match only leading alpha characters
+    const [result] = match!;
+    return result.charAt(0).toUpperCase() + result.slice(1).toLowerCase();
+  };
+
+  return (
+    <div key={type as string} className="mr-2">
+      <div>
+        <button
+          onClick={() => generate(type, selectedId)}
+          className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon w-full mb-1"
+        >
+          {type as string}
+        </button>
+      </div>
+      <div>
+        <select className="rounded-md text-sm" onChange={handleChange}>
+          {configs.map((config: AvatarConfig) => (
+            <option key={config.avatarId} value={config.avatarId}>
+              {idToName(config.avatarId)}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+};
 
 function AvatarHome() {
   const searchParams = useSearchParams();
@@ -45,49 +106,36 @@ function AvatarHome() {
     };
   }, []);
 
-  function createEnumButtons<T extends string | number>(
-    enumType: Record<string, T>,
-  ): JSX.Element[] {
-    return Object.values(enumType).map((key) => (
-      <button
-        key={key as string}
-        onClick={() => generate(key as Provider)}
-        className="mr-1 rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon"
-      >
-        {key as string}
-      </button>
-    ));
-  }
-  const createConnectionText = () => {
-    return currentProvider ? `${currentProvider}: ${connectionState}` : "";
-  };
-  const createClient = (provider: Provider) => {
+  const createClient = (provider: Provider, avatarId: string) => {
+    const config = AVATAR_MAP[provider].find(
+      (config: AvatarConfig) => config.avatarId === avatarId,
+    );
+    if (!config) {
+      throw new Error(
+        `Avatar ID ${avatarId} not found for provider ${provider}`,
+      );
+    }
+    let ctor;
     switch (provider) {
       case Provider.DIDTalks:
-        return new DidTalksClient(mediaElementRef.current!, DID_SOURCE_URL);
-      case Provider.DIDClips1:
-        return new DidClipsClient(
-          mediaElementRef.current!,
-          DID_PRESENTER_ID1,
-          DID_DRIVER_ID1,
-        );
-      case Provider.DIDClips2:
-        return new DidClipsClient(
-          mediaElementRef.current!,
-          DID_PRESENTER_ID2,
-          DID_DRIVER_ID2,
-          DID_VOICE_ID2,
-        );
+        ctor = DidTalksClient;
+        break;
+      case Provider.DIDClips:
+        ctor = DidClipsClient;
+        break;
       case Provider.HeyGen:
-        return new HeyGenClient(mediaElementRef.current!);
+        ctor = HeyGenClient;
+        break;
       case Provider.Microsoft:
-        return new AzureClient(mediaElementRef.current!);
+        ctor = AzureClient;
+        break;
       default:
         throw new Error("Not implemented yet");
     }
+    return new ctor(mediaElementRef.current!, config.avatarId, config.voiceId);
   };
-  const connect = async (provider: Provider) => {
-    clientRef.current = createClient(provider);
+  const connect = async (provider: Provider, avatarId: string) => {
+    clientRef.current = createClient(provider, avatarId);
     setCurrentProvider(provider);
     setConnectionState("connecting");
     clientRef.current.addEventListener(
@@ -95,17 +143,38 @@ function AvatarHome() {
       (evt: CustomEventInit<RTCPeerConnectionState>) =>
         setConnectionState(evt.detail!),
     );
+    console.log(`Connecting to ${provider} with ${avatarId}...`);
     await clientRef.current.connect();
     while (!clientRef.current.connected) {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
   };
-  const generate = async (provider: Provider) => {
-    if (!clientRef.current || provider != currentProvider) {
+  const generate = async (provider: Provider, avatarId: string) => {
+    // Force element to play from our click handler to make Safari happy.
+    if (
+      !clientRef.current ||
+      provider != currentProvider ||
+      avatarId != clientRef.current.avatarId
+    ) {
       clientRef.current?.close();
-      await connect(provider);
+      mediaElementRef.current!.srcObject = null;
+      mediaElementRef.current!.play();
+      await connect(provider, avatarId);
     }
     await clientRef.current!.generate({ text: { text } });
+  };
+  function createProviders(): JSX.Element[] {
+    return Object.entries(AVATAR_MAP).map(([type, configs]) => (
+      <AvatarProvider
+        key={type}
+        type={type as Provider}
+        configs={configs}
+        generate={generate}
+      />
+    ));
+  }
+  const createConnectionText = () => {
+    return currentProvider ? `${currentProvider}: ${connectionState}` : "";
   };
 
   return (
@@ -122,7 +191,7 @@ function AvatarHome() {
           onChange={(e) => setText(e.currentTarget.value)}
         ></textarea>
       </div>
-      <div className="m-2 flex flex-row">{createEnumButtons(Provider)}</div>
+      <div className="m-2 flex flex-row">{createProviders()}</div>
       <div className="m-2 relative">
         <video
           className="top-0 left-0"

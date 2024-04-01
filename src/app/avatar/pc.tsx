@@ -13,13 +13,23 @@ export abstract class PeerConnectionClient extends EventTarget {
   private lastGenerateStart?: number;
   private audioTrackTimer?: NodeJS.Timeout;
   private chromaKeyer?: ChromaKeyer;
+  private _avatarId?: string;
+  private _voiceId?: string;
   private _backgroundColor = "#007F00";
-  constructor(video: HTMLVideoElement) {
+  constructor(video: HTMLVideoElement, avatarId?: string, voiceId?: string) {
     super();
     this.video = video;
+    this._avatarId = avatarId;
+    this._voiceId = voiceId;
   }
   get connected(): boolean {
     return this.pc?.connectionState === "connected";
+  }
+  get avatarId(): string | undefined {
+    return this._avatarId;
+  }
+  get voiceId(): string | undefined {
+    return this._voiceId;
   }
   get backgroundColor(): string {
     return this._backgroundColor;
@@ -56,10 +66,7 @@ export abstract class PeerConnectionClient extends EventTarget {
       );
       if (event.track.kind === "video") {
         this.chromaKeyer = new ChromaKeyer(event.streams[0]);
-        this.video.srcObject = this.chromaKeyer.stream;
-        this.video.play().catch((err) => {
-          console.error("Error auto-playing video: ", err);
-        });
+        this.video.srcObject = this.chromaKeyer.stream ?? event.streams[0];
       } else if (event.track.kind === "audio") {
         // This works around an issue with the Azure avatars where the audio track is standalone.
         const stream = this.video.srcObject as MediaStream | null;
