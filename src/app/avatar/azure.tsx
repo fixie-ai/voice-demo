@@ -8,8 +8,8 @@ const DEFAULT_AVATAR_STYLE = "casual-sitting";
 
 export class AzureClient extends PeerConnectionClient {
   private synth?: SpeechSDK.AvatarSynthesizer;
-  constructor(video: HTMLVideoElement) {
-    super(video);
+  constructor(video: HTMLVideoElement, avatarId?: string, voiceId?: string) {
+    super(video, avatarId, voiceId);
   }
   async connect() {
     const { token, region, iceServers } = await this.fetchToken();
@@ -17,8 +17,8 @@ export class AzureClient extends PeerConnectionClient {
       token!,
       region!,
     );
-    speechConfig.speechSynthesisVoiceName = DEFAULT_TTS_VOICE;
-    const character = DEFAULT_AVATAR_CHARACTER;
+    speechConfig.speechSynthesisVoiceName = this.voiceId ?? DEFAULT_TTS_VOICE;
+    const character = this.avatarId ?? DEFAULT_AVATAR_CHARACTER;
     const style = DEFAULT_AVATAR_STYLE;
     // Crop from 1080p to square.
     const format = new SpeechSDK.AvatarVideoFormat();

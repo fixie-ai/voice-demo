@@ -11,9 +11,10 @@ abstract class DidClient extends RestPeerConnectionClient {
   constructor(
     mediaElement: HTMLVideoElement,
     private service: string,
-    private voiceId = DEFAULT_TTS_VOICE,
+    avatarId: string,
+    voiceId = DEFAULT_TTS_VOICE,
   ) {
-    super(mediaElement);
+    super(mediaElement, avatarId, voiceId);
   }
   protected async startSession() {
     const body = this.buildStartRequest();
@@ -80,26 +81,26 @@ abstract class DidClient extends RestPeerConnectionClient {
 export class DidTalksClient extends DidClient {
   constructor(
     mediaElement: HTMLVideoElement,
-    private sourceUrl: string,
+    avatarId: string,
     voiceId?: string,
   ) {
-    super(mediaElement, "talks", voiceId);
+    super(mediaElement, "talks", avatarId, voiceId);
   }
   protected buildStartRequest() {
-    return { source_url: this.sourceUrl };
+    return { source_url: this.avatarId };
   }
 }
 
 export class DidClipsClient extends DidClient {
   constructor(
     mediaElement: HTMLVideoElement,
-    private presenterId: string,
-    private driverId: string,
+    avatarId: string,
     voiceId?: string,
   ) {
-    super(mediaElement, "clips", voiceId);
+    super(mediaElement, "clips", avatarId, voiceId);
   }
   protected buildStartRequest() {
-    return { presenter_id: this.presenterId, driver_id: this.driverId };
+    const [presenter_id, driver_id] = this.avatarId!.split("/");
+    return { presenter_id, driver_id };
   }
 }
