@@ -71,7 +71,7 @@ const AvatarProvider: React.FC<AvatarProviderProps> = ({
     <div key={type as string} className="mr-2">
       <div>
         <button
-          onClick={() => generate(type as Provider, selectedId)}
+          onClick={() => generate(type, selectedId)}
           className="rounded-md bg-fixie-fresh-salmon hover:bg-fixie-ripe-salmon px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fixie-fresh-salmon w-full mb-1"
         >
           {type as string}
@@ -107,7 +107,7 @@ function AvatarHome() {
   }, []);
 
   const createClient = (provider: Provider, avatarId: string) => {
-    const config = AVATAR_MAP[provider as Provider].find(
+    const config = AVATAR_MAP[provider].find(
       (config: AvatarConfig) => config.avatarId === avatarId,
     );
     if (!config) {
