@@ -31,16 +31,16 @@ interface AvatarConfig {
 const AVATAR_MAP: Record<Provider, AvatarConfig[]> = {
   [Provider.DIDTalks]: [{ avatarId: DID_SOURCE_URL }],
   [Provider.DIDClips]: [
-    { avatarId: "amy-Aq6OmGZnMt/hORBJB77ln" },
-    { avatarId: "rian-lZC6MmWfC1/mXra4jY38i", voiceId: "en-US-TonyNeural" },
+    { avatarId: "rian-lZC6MmWfC1/mXra4jY38i", voiceId: "en-US-GuyNeural" },
+    { avatarId: "amy-Aq6OmGZnMt/hORBJB77ln" },    
   ],
   [Provider.HeyGen]: [
     //{avatarId: "default"},
     { avatarId: "Angela-inblackskirt-20220820" },
+    { avatarId: "Tyler-incasualsuit-20220721", voiceId: "en-US-TonyNeural" },
     { avatarId: "Anna_public_3_20240108" },
     { avatarId: "Kayla-incasualsuit-20220818" },
     { avatarId: "Kristin_public_2_20240108" },
-    { avatarId: "Tyler-incasualsuit-20220721", voiceId: "en-US-GuyNeural" },
   ],
   [Provider.Microsoft]: [{ avatarId: "lisa" }],
   [Provider.Yepic]: [{ avatarId: "default" }],
