@@ -32,7 +32,7 @@ const AVATAR_MAP: Record<Provider, AvatarConfig[]> = {
   [Provider.DIDTalks]: [{ avatarId: DID_SOURCE_URL }],
   [Provider.DIDClips]: [
     { avatarId: "rian-lZC6MmWfC1/mXra4jY38i", voiceId: "en-US-GuyNeural" },
-    { avatarId: "amy-Aq6OmGZnMt/hORBJB77ln" },    
+    { avatarId: "amy-Aq6OmGZnMt/hORBJB77ln" },
   ],
   [Provider.HeyGen]: [
     //{avatarId: "default"},

@@ -22,7 +22,7 @@ async function invoke(method: string, url: string) {
   const response = await fetch(url, {
     method,
     headers: { "Ocp-Apim-Subscription-Key": TTS_API_KEY },
-    cache: 'no-store'
+    cache: "no-store",
   });
   const responseData = await response.text();
   if (!response.ok) {
