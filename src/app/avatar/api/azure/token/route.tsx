@@ -12,10 +12,7 @@ export async function GET(req: Request): Promise<Response> {
     region: TTS_REGION,
     iceServers: makeIceServers(iceData),
   };
-  const response = new Response(JSON.stringify(out));
-  response.headers.set("Content-Type", "application/json");
-  response.headers.set("Cache-Control", "max-age=300");
-  return response;
+  return Response.json(out);
 }
 
 async function invoke(method: string, url: string) {
