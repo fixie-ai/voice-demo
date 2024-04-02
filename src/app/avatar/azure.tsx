@@ -3,7 +3,7 @@ import { PeerConnectionClient } from "./pc";
 import * as SpeechSDK from "microsoft-cognitiveservices-speech-sdk";
 
 const DEFAULT_TTS_VOICE = "en-US-JennyNeural";
-const DEFAULT_AVATAR_CHARACTER = "lisa";
+const DEFAULT_AVATAR_ID = "lisa";
 const DEFAULT_AVATAR_STYLE = "casual-sitting";
 
 export class AzureClient extends PeerConnectionClient {
@@ -18,7 +18,7 @@ export class AzureClient extends PeerConnectionClient {
       region!,
     );
     speechConfig.speechSynthesisVoiceName = this.voiceId ?? DEFAULT_TTS_VOICE;
-    const character = this.avatarId ?? DEFAULT_AVATAR_CHARACTER;
+    const character = this.avatarId ?? DEFAULT_AVATAR_ID;
     const style = DEFAULT_AVATAR_STYLE;
     // Crop from 1080p to square.
     const format = new SpeechSDK.AvatarVideoFormat();

@@ -12,7 +12,7 @@ export async function GET(req: Request): Promise<Response> {
     region: TTS_REGION,
     iceServers: makeIceServers(iceData),
   };
-  return new Response(JSON.stringify(out));
+  return Response.json(out);
 }
 
 async function invoke(method: string, url: string) {
@@ -22,6 +22,7 @@ async function invoke(method: string, url: string) {
   const response = await fetch(url, {
     method,
     headers: { "Ocp-Apim-Subscription-Key": TTS_API_KEY },
+    cache: "no-store",
   });
   const responseData = await response.text();
   if (!response.ok) {

@@ -38,9 +38,12 @@ export class Proxy {
       return new Response(text, { status: apiResp.status });
     } catch (e) {
       console.error("Proxy request failed:", e);
-      return new Response(JSON.stringify({ error: "Proxy request failed" }), {
-        status: 500,
-      });
+      return Response.json(
+        { error: "Proxy request failed" },
+        {
+          status: 500,
+        },
+      );
     }
   }
 }
