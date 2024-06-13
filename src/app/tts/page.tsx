@@ -207,7 +207,7 @@ const PageComponent: React.FC = () => {
           provider="lmnt"
           supportsWs
           link="https://lmnt.com"
-          costPerKChar={0.2}
+          costPerKChar={0.15}
           text={text}
         />
         <Tts
