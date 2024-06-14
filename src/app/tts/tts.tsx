@@ -1052,7 +1052,7 @@ export class GcpTextToSpeech extends RestTextToSpeech {
 }
 
 export class LmntTextToSpeech extends RestTextToSpeech {
-  static readonly DEFAULT_VOICE = "mrnmrz72"; // Marzia
+  static readonly DEFAULT_VOICE = "morgan";
   constructor(
     urlFunc: BuildUrl,
     voice: string = LmntTextToSpeech.DEFAULT_VOICE,
