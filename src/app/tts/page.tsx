@@ -185,21 +185,21 @@ const PageComponent: React.FC = () => {
           text={text}
         />
         <Tts
-          display="ElevenLabs v1"
-          provider="eleven"
-          supportsWs
-          link="https://elevenlabs.io"
-          costPerKChar={0.18}
-          model="eleven_monolingual_v1"
-          text={text}
-        />
-        <Tts
           display="ElevenLabs v2"
           provider="eleven"
           supportsWs
           link="https://elevenlabs.io"
           costPerKChar={0.18}
           model="eleven_turbo_v2"
+          text={text}
+        />
+        <Tts
+          display="ElevenLabs v2.5"
+          provider="eleven"
+          supportsWs
+          link="https://elevenlabs.io"
+          costPerKChar={0.18}
+          model="eleven_turbo_v2_5"
           text={text}
         />
         <Tts
